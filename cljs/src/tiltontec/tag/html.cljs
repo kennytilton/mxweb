@@ -44,7 +44,7 @@
          (for [[k v] m :when (nil? v)] k)))
 
 (defn tag-attrs [mx]
-  (let [beef (remove nil? (for [k (:attr-keys @mx)
+  (let [beef (remove nil? (for [k (:attr-keys @mx)]
                             (when-let [v (md-get mx k)]
                               [(name k) v])))]
     (apply js-obj
