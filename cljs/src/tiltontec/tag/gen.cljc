@@ -30,7 +30,7 @@
                       :type :tiltontec.tag.html/tag
                       :tag tag
                       :id tag-id
-                      :attr-keys (conj (keys attrs) :id)
+                      :attr-keys (distinct (conj (keys attrs) :id))
                       :kids c?kids
                       (concat (vec (apply concat (seq (dissoc attrs :id))))
                               (vec (apply concat (seq aux)))))]
@@ -93,8 +93,8 @@
          table tbody td template textarea tfoot th thead time title tr track tt u ul var video wbr xmp)
 
 ;;; ...avoids mistaken/benign warnings from this:
-(deftags h1 p a span button input section header footer ul div label li)
-#_
+;;;(deftags h1 h3 p a span button input section header footer ul div label li img)
+
 (deftags a abbr acronym address applet area article aside audio b base basefont bdi bdo bgsound big blink
          blockquote body br button canvas caption center cite code col colgroup command content
          data datalist dd del details dfn dialog dir div dl dt element em embed

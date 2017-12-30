@@ -11,7 +11,9 @@
      :refer-macros [the-kids mdv!]
      :refer [md-get fasc fm! make md-reset! backdoor-reset!]
      :as md]
-    [tiltontec.tag.style :as tagcss]
+
+    [tiltontec.tag.style
+     :refer [style-string ] :as tagcss]
 
     [goog.dom :as dom]
     [goog.html.SafeHtml :as safe]
@@ -44,19 +46,23 @@
   (apply dissoc m
          (for [[k v] m :when (nil? v)] k)))
 
-(defn style-string [s]
-  (cond
-    (string? s) s
-    :default
-    (str/join ";"
-              (for [[k v] s]
-                (pp/cl-format nil "~a:~a" (name k) v)))))
+(defn tag-dom [me]
+  ;; This will return nil when 'me' is being awakened and rules
+  ;; are firing for the first time, because 'me' has not yet
+  ;; been installed in the actual DOM, so call this only
+  ;; from event handlers and the like.
+  (let [id (md-get me :id)]
+    (assert id)
+    (or (md-get me :dom-cache)
+        (if-let [dom (dom/getElement (str id))]
+          (backdoor-reset! me :dom-cache dom)
+          (println :no-element id :found)))))
 
 (defn tag-attrs [mx]
   (let [beef (remove nil? (for [k (:attr-keys @mx)]
                             (when-let [v (md-get mx k)]
                               [(name k) (case k
-                                          :style (style-string v)
+                                          :style (tagcss/style-string v)
                                           v)])))]
     (apply js-obj
            (apply concat beef))))
@@ -86,18 +92,6 @@
 (defn true-html [keyword]
   (or (keyword +true-html+)
       (name keyword)))
-
-(defn tag-dom [me]
-  ;; This will return nil when 'me' is being awakened and rules
-  ;; are firing for the first time, because 'me' has not yet
-  ;; been installed in the actual DOM, so call this only
-  ;; from event handlers and the like.
-  (let [id (md-get me :id)]
-    (assert id)
-    (or (md-get me :dom-cache)
-        (if-let [dom (dom/getElement (str id))]
-          (backdoor-reset! me :dom-cache dom)
-          (println :no-element id :found)))))
 
 (defn tag [me]
   (md-get me :tag))
@@ -140,20 +134,29 @@
                    (dom/removeChildren pdom)
                    (dom/appendChild pdom frag)))))))
 
-(def +global-attr+ (set [:class :checked :hidden :style]))
 (def +inline-css+ (set [:display]))
 
 (defmethod observe-by-type [:tiltontec.tag.html/tag] [slot me newv oldv _]
   (when (not= oldv unbound)
     (when-let [dom (tag-dom me)]
       (when *tag-trace*
-        (pln :observing-css *tag-trace* (tagfo me) slot newv oldv))
+        (pln :observing-tagtype (:attr-keys @me) (tagfo me) slot newv oldv))
 
       (cond
         (= slot :content) (set! (.-innerHTML dom) newv)
 
-        (+global-attr+ slot)
-        (throw (js/Error. (str "tag obs sees oldskool attr: " slot)))
+        (some #{slot} (:attr-keys @me))
+        (do
+          (pln :contains!!!!! slot)
+          (case slot
+              :style (set! (.-style dom) (style-string newv))
+              :hidden (do (pln :obs-hidden2 dom)
+                          (set! (.-hidden dom) newv))
+              :class (classlist/set dom newv)
+              :checked (set! (.-checked dom) newv)
+              (do
+                (pln :obs-by-type-genset slot newv)
+                (.setAttribute dom (name slot) newv))))
 
         (+inline-css+ slot)
         (throw (js/Error. (str "tag obs sees oldskool style: " slot)))))))
