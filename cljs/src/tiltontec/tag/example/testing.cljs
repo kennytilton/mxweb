@@ -7,6 +7,7 @@
              :refer [matrix mx-par md-get md-reset! mxi-find mxu-find-name] :as md]
             [tiltontec.tag.gen :refer [evt-tag target-value]
              :refer-macros [h1 h2 h3 h4 h5 section label header footer p span a img ul li input div button]]
+            [tiltontec.tag.style :as css]
             [goog.dom :as dom]
             [goog.dom.classlist :as classlist]
             [goog.editor.focus :as focus]
@@ -15,14 +16,28 @@
             [goog.dom.forms :as form]))
 
 (defn test-page-3 []
-  [(h1 {:style "color:red;background-color:#000;padding:10px"} "Himom!")
-   (h1 {:hidden true} "Himom!!")
-   (div {:class "color-input"}
-     "Time color: "
-     (input {:name     :timecolor
-             :tag/type "text"
-             :value    (c-in "#0ff")
-             :onclick #(println :click!! %)}))])
+  [(div {:id      "xx"
+         :onclick #(let [me (evt-tag %)]
+                     (println :click!! % (:id @me) (:clicks @me))
+                     (md-reset! me :clicks (inc (:clicks @me))))}
+
+     {:clicks (c-in 42)}
+
+     "Maybe?"
+
+     (span {:style "color:red;background-color:#eee;padding:10px"}
+           {:content (c? (str "Himom style string! " (md-get (mx-par me) :clicks)))})
+
+     (span {:style {:color            "green"
+                    :background-color "yellow"
+                    :padding          "24px"}}
+           {:content (c? (str "Himom style ! " (md-get (mx-par me) :clicks)))}))
+   ;(h1 {:hidden true} "Himom hidden!!")
+   #_(div {:class "color-input" :style "margin-top:24px"}
+       "Time color: "
+       (input {:name     :timecolor
+               :tag/type "text"
+               :value    (c-in "#0ff")}))])
 
 (defn matrix-build! []
   (md/make ::startwatch

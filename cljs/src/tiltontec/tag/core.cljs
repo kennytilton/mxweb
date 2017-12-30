@@ -19,7 +19,7 @@
 (let [root (dom/getElement "tagroot")
 
       ;; switch next to, eg, (gi/matrix-build!) to explore the gentle intro
-      app-matrix (todo/matrix-build!)
+      app-matrix (test/matrix-build!)
 
       app-dom (binding [*tag-trace* nil]                ;; <-- set to nil if console too noisy
                 (tag-dom-create

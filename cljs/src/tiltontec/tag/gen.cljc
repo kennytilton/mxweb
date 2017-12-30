@@ -16,6 +16,7 @@
 (def tag-by-id (atom {}))
 
 (defn dom-tag [dom]
+  (println :dom-tag-sees-id (.-id dom))
   (let [tag (get @tag-by-id (.-id dom))]
     (assert tag (str "dom-tag did not find js for id " (.-id dom)
                      " of dom " dom))
@@ -24,15 +25,16 @@
 (defn make-tag [tag attrs aux c?kids]
   (prn :make-tag tag attrs aux)
   (let [tag-id (str (or (:id attrs)
-                        (swap! +tag-sid+ inc)))
+                        (str tag "-" (swap! +tag-sid+ inc))))
         mx-tag (apply make
                       :type :tiltontec.tag.html/tag
                       :tag tag
                       :id tag-id
-                      :attr-keys (remove #{:id} (keys attrs))
+                      :attr-keys (conj (keys attrs) :id)
                       :kids c?kids
                       (concat (vec (apply concat (seq (dissoc attrs :id))))
                               (vec (apply concat (seq aux)))))]
+    (println :made-tag!! tag-id (keys @mx-tag))
     (swap! tag-by-id assoc tag-id mx-tag)
     mx-tag))
 
@@ -91,6 +93,8 @@
          table tbody td template textarea tfoot th thead time title tr track tt u ul var video wbr xmp)
 
 ;;; ...avoids mistaken/benign warnings from this:
+(deftags h1 p a span button input section header footer ul div label li)
+#_
 (deftags a abbr acronym address applet area article aside audio b base basefont bdi bdo bgsound big blink
          blockquote body br button canvas caption center cite code col colgroup command content
          data datalist dd del details dfn dialog dir div dl dt element em embed
@@ -114,146 +118,3 @@
    (defn target-value [evt]
      (form/getValue (.-target evt))))
 
-;(clojure.pprint/cl-format nil "(deftags ~{~a~^ ~})"
-; (for [tag alltags]
-;  (clojure.string/replace tag #"[<>]" "")))
-
-;(def alltags '(<a>
-;                <abbr>
-;                <acronym>
-;                <address>
-;                <applet>
-;                <area>
-;                <article>
-;                <aside>
-;                <audio>
-;                <b>
-;                <base>
-;                <basefont>
-;                <bdi>
-;                <bdo>
-;                <bgsound>
-;                <big>
-;                <blink>
-;                <blockquote>
-;                <body>
-;                <br>
-;                <button>
-;                <canvas>
-;                <caption>
-;                <center>
-;                <cite>
-;                <code>
-;                <col>
-;                <colgroup>
-;                <command>
-;                <content>
-;                <data>
-;                <datalist>
-;                <dd>
-;                <del>
-;                <details>
-;                <dfn>
-;                <dialog>
-;                <dir>
-;                <div>
-;                <dl>
-;                <dt>
-;                <element>
-;                <em>
-;                <embed>
-;                <fieldset>
-;                <figcaption>
-;                <figure>
-;                <font>
-;                <footer>
-;                <form>
-;                <frame>
-;                <frameset>
-;                <h1>
-;                <head>
-;                <header>
-;                <hgroup>
-;                <hr>
-;                <html>
-;                <i>
-;                <iframe>
-;                <image>
-;                <img>
-;                <input>
-;                <ins>
-;                <isindex>
-;                <kbd>
-;                <keygen>
-;                <label>
-;                <legend>
-;                <li>
-;                <link>
-;                <listing>
-;                <main>
-;                <map>
-;                <mark>
-;                <marquee>
-;                <menu>
-;                <menuitem>
-;                <meta>
-;                <meter>
-;                <multicol>
-;                <nav>
-;                <nextid>
-;                <nobr>
-;                <noembed>
-;                <noframes>
-;                <noscript>
-;                <object>
-;                <ol>
-;                <optgroup>
-;                <option>
-;                <output>
-;                <p>
-;                <param>
-;                <picture>
-;                <plaintext>
-;                <pre>
-;                <progress>
-;                <q>
-;                <rp>
-;                <rt>
-;                <rtc>
-;                <ruby>
-;                <s>
-;                <samp>
-;                <script>
-;                <section>
-;                <select>
-;                <shadow>
-;                <slot>
-;                <small>
-;                <source>
-;                <spacer>
-;                <span>
-;                <strike>
-;                <strong>
-;                <style>
-;                <sub>
-;                <summary>
-;                <sup>
-;                <table>
-;                <tbody>
-;                <td>
-;                <template>
-;                <textarea>
-;                <tfoot>
-;                <th>
-;                <thead>
-;                <time>
-;                <title>
-;                <tr>
-;                <track>
-;                <tt>
-;                <u>
-;                <ul>
-;                <var>
-;                <video>
-;                <wbr>
-;                <xmp>))
