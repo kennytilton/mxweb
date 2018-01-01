@@ -41,18 +41,16 @@
     (string? s) s
 
     (map? s)
-    (do
-      ;;(println :ss-map-keys (keys s))
-      (str/join ";"
-                (for [[k v] s]
-                  (pp/cl-format nil "~a:~a" (name k) v))))
+    (str/join ";"
+      (for [[k v] s]
+        (pp/cl-format nil "~a:~a" (name k) v)))
 
     (= :tiltontec.tag.css/css (ia-type s))
     (style-string (select-keys @s (:css-keys @s)))
 
     :default
     (do
-      (println :ss-unknown (type s)  ))))
+      (println :ss-unknown (type s)))))
 
 
 #_(case slot
@@ -67,9 +65,5 @@
 
 (defmethod observe-by-type [:tiltontec.tag.css/css] [slot me newv oldv _]
   (when (not= oldv unbound)
-    (pln :obs-css-by-type slot newv me)
     (let [dom (tag-dom (:tag @me))]
-
       (gstyle/setStyle dom (name slot) newv))))
-
-#_@(make-css-inline nil :a (c-in 1) :b (c? (* (md-get me :a))))

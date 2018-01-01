@@ -63,6 +63,9 @@
                             (when-let [v (md-get mx k)]
                               [(name k) (case k
                                           :style (tagcss/style-string v)
+                                          :class (if (sequential? v)
+                                                   (str/join " " v)
+                                                   v)
                                           v)])))]
     (apply js-obj
            (apply concat beef))))
@@ -139,7 +142,7 @@
 (defmethod observe-by-type [:tiltontec.tag.html/tag] [slot me newv oldv _]
   (when (not= oldv unbound)
     (when-let [dom (tag-dom me)]
-      (when *tag-trace*
+      (when false ;; true ;; *tag-trace*
         (pln :observing-tagtype (:attr-keys @me) (tagfo me) slot newv oldv))
 
       (cond
@@ -147,13 +150,14 @@
 
         (some #{slot} (:attr-keys @me))
         (do
-          (pln :contains!!!!! slot)
           (case slot
               :style (set! (.-style dom) (style-string newv))
-              :hidden (do (pln :obs-hidden2 dom)
-                          (set! (.-hidden dom) newv))
-              :class (classlist/set dom newv)
-              :checked (set! (.-checked dom) newv)
+
+              :hidden (set! (.-hidden dom) newv) ;; setAttribute seems not to work
+              :class (classlist/set dom (if (sequential? newv)
+                                          (str/join " " newv)
+                                          newv))
+              ;; :checked (set! (.-checked dom) newv)
               (do
                 (pln :obs-by-type-genset slot newv)
                 (.setAttribute dom (name slot) newv))))
