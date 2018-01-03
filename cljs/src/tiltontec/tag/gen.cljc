@@ -74,8 +74,6 @@
                        ~~tag-name {} {}
                        (tiltontec.model.core/c?kids ~@~vargs)))))))
 
-
-
 (defmacro deftags [& tags]
   `(do ~@(for [tag tags]
            `(deftag ~tag))))

@@ -82,7 +82,7 @@
      :default
      (do (when-let [dbg (or dbg *tag-trace*)]
            (pln :tag-dom-create dbg (tagfo me)))
-         (pln :domcre-attrs (:attr-keys @me) (tag-attrs me))
+         ;;(pln :domcre-attrs (:attr-keys @me) (tag-attrs me))
          (apply dom/createDom (md-get me :tag)
                 (tag-attrs me)
                 (concat                                     ;; to-do: need this?
