@@ -26,6 +26,7 @@
                   (md/md-get app-matrix :mx-dom)))]
 
   (prn :app-dom!!!! (str app-dom))
+
   (set! (.-innerHTML root) nil)
   (dom/appendChild root app-dom)
   (when-let [route-starter (md/md-get app-matrix :router-starter)]

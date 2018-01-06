@@ -16,14 +16,24 @@
 (def tag-by-id (atom {}))
 
 (defn dom-tag [dom]
-  (println :dom-tag-sees-id (.-id dom))
-  (let [tag (get @tag-by-id (.-id dom))]
-    (assert tag (str "dom-tag did not find js for id " (.-id dom)
-                     " of dom " dom))
-    tag))
+  (cond
+    (nil? dom) (do (println :outthetop!!!)
+                   nil)
+
+    ;; where we specify string content to, eg, button, we get an
+    ;; automatic span for the string that has no ID. Hopefully, where
+    ;; dom-tag is requested they will be OK with us tracking the nearest ascendant.
+    (= "" (.-id dom)) (do (println :no-id-try-pa (.-parentNode dom))
+                          (dom-tag (.-parentNode dom)))
+    :default (do
+               (println :dom-tag-really-sees-id (.-id dom)(type (.-id dom)))
+               (let [tag (get @tag-by-id (.-id dom))]
+                 (assert tag (str "dom-tag did not find js for id " (.-id dom)
+                                  " of dom " dom))
+                 tag))))
 
 (defn make-tag [tag attrs aux c?kids]
-  (prn :make-tag tag attrs aux)
+  ;;(prn :make-tag tag attrs aux)
   (let [tag-id (str (or (:id attrs)
                         (str tag "-" (swap! +tag-sid+ inc))))
         mx-tag (apply make
@@ -37,7 +47,6 @@
     (println :made-tag!! tag-id (keys @mx-tag))
     (swap! tag-by-id assoc tag-id mx-tag)
     mx-tag))
-
 
 (defmethod not-to-be [:tiltontec.tag.html/tag] [me]
   ;; todo: worry about leaks

@@ -32,7 +32,8 @@
 
             [cljs-http.client :as client]
             [cognitect.transit :as t]
-            [clojure.walk :refer [keywordize-keys]]))
+            [clojure.walk :refer [keywordize-keys]]
+            [cljs.pprint :as pp]))
 
 (defn test-page-3 []
   [(div {:id      "xx"
@@ -117,13 +118,23 @@
 (def ae-brand
   "https://api.fda.gov/drug/event.json?search=patient.drug.openfda.brand_name:~a&limit=~a")
 
+(def rx-nav-unk
+  "https://rxnav.nlm.nih.gov/REST/interaction/interaction.json?rxcui=341248")
+
+(defn evt-std [e]
+  (.stopPropagation e)
+  (.upgradeDom js/componentHandler))
+
 (defn test-page-4 []
 
-  [(div {:id      "xx"
+  [(h1 {:class "mdl-typography--display-2"} "Clojure NYC Meet-Up")
+   (p {:class "mdl-typography--display-1"} "A Night to Remember")
+   (div {:id      "xx"
          :onclick #(let [me (evt-tag %)]
-                     (when true                             ;; (= (:id @me) "xx")
+                     (when (= (:id @me) "xx")
                        (println :xx-click!! % (:id @me) (:clicks @me))
-                       (md-reset! me :clicks (inc (:clicks @me)))))}
+                       (md-reset! me :clicks (inc (:clicks @me)))
+                       (evt-std %)))}
 
      {:clicks (c-in 0)
       :brand  "adderall"}
@@ -132,15 +143,30 @@
          (str "Content?! Content rule" (md-get me :clicks) "|Ooops"))
 
      (br)
+     (div
+       (button {:class "mdl-button mdl-js-button mdl-js-ripple-effect"
+                :onclick #(evt-std %)}
+               {:mdl true}
+               "MDL Rizing")
+       (br)
+       (let [xx (mx-par me)]
+         (println :id?? (:id @me))
+         (assert (= "xx" (:id @xx)))
+         (when (odd? (md-get xx :clicks))
+           (button {:class "mdl-button mdl-js-button mdl-js-ripple-effect"
+                    :onclick #(evt-std %)}
+                   {:mdl true}
+                   "MDL Rizing Dyno"))))
+     (br)
 
-     #_(div {}
+     (div {}
          {:ae (c? (with-synapse (:github [])
-                    (send-xhr ae-adderall)))}
-         (p (pp/pcl-format "~a adverse event" (md-get me :brand)))
+                    (send-xhr rx-nav-unk #_ ae-adderall)))}
+         (p (pp/cl-format "~a adverse event" (md-get me :brand)))
          (when-let [r (xhr-response (md-get me :ae))]
            (str "Booya!:" r)))
 
-     (div (let [ax (with-synapse (:github [])
+     #_ (div (let [ax (with-synapse (:github [])
                       (send-xhr ae-adderall))]
              (if-let [ae (first (:results (:body (xhr-response ax))))]
 

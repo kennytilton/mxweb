@@ -83,12 +83,19 @@
      (do (when-let [dbg (or dbg *tag-trace*)]
            (pln :tag-dom-create dbg (tagfo me)))
          ;;(pln :domcre-attrs (:attr-keys @me) (tag-attrs me))
-         (apply dom/createDom (md-get me :tag)
+         (let [dom (apply dom/createDom (md-get me :tag)
                 (tag-attrs me)
                 (concat                                     ;; to-do: need this?
                   (map #(tag-dom-create % dbg) (md-get me :kids))
                   (when-let [c (md-get me :content)]
-                    [(tag-dom-create c)])))))))
+                    [(tag-dom-create c)])))]
+           #_ (when (:mdl @me)
+             (swap! me assoc :mdl false)
+
+             (when (.-componentHandler js/window)
+               (pln :Upgrading!!!!!!! (:id @me)(:mdl @me))
+               (.upgradeElement js/componentHandler dom)))
+           dom)))))
 
 (def +true-html+ {::type "type"})
 
