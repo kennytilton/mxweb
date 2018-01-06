@@ -21,7 +21,7 @@
              :as tag]
 
             [tiltontec.tag.gen
-             :refer-macros [section header h1 input footer p a span label ul li div button]
+             :refer-macros [section header h1 input footer p a span label ul li div button br]
              :refer [dom-tag]]
 
             [goog.dom :as dom]
@@ -33,24 +33,31 @@
 
             [tiltontec.tag.example.todo
              :refer [make-todo td-title td-created bulk-todo
-                     td-completed td-upsert td-delete! load-all
-                     td-id td-toggle-completed!]]))
+                     td-completed td-due-by td-upsert td-delete! load-all
+                     td-id td-toggle-completed!]]
+            [cljs-time.coerce :as tmc]))
 
 (declare landing-page mx-todos mx-todo-items mx-find-matrix start-router mx-route)
 
 ;;; --- the beef: matrix-build! ------------------------------------------
 
 (defn matrix-build! []
-  ;;; a matrix is a reactive structure that generates something else. In this case, the
-  ;;; matrix nodes are Tag instances that map isomorphically to DOM nodes; the matrix
-  ;;; this makes a real web page in its own image.
+  ;;; In general, a matrix is a reactive structure that generates through side
+  ;;; effects something else of practical use. In this case that something else
+  ;;; is a Do List app. The matrix nodes are Tag instances which map isomorphically
+  ;;; to DOM nodes. If you will, the matrix makes a web page in its own image.
   ;;;
-  ;;; matrix-build! is kinda the "main" of any matrix app: every app will
-  ;;; have one that is responsible for building the initial matrix. Once built, app
-  ;;; functionality (vs low-level implementation wiring) arises from matrix objects
-  ;;; changing in reaction to input Cell writes by event handlers, triggering observers
-  ;;; that manifest those changes usefully, in TodoMVC either updating the DOM or writing
+  ;;; matrix-build! is the unofficial "main" of my matrix demo: my real entry point
+  ;;; calls <some namespace>/matrix-build! and I just change <some namespace> to
+  ;;; whichever demo namespace I am hacking on at the time. There is nothing obligatory
+  ;;; about any of this.
+  ;;;
+  ;;; matrix-build! is responsible for building the initial matrix. Once built, app
+  ;;; functionality arises from matrix objects changing in reaction to input Cell
+  ;;; "writes" made by event handlers, triggering observers which manifest those
+  ;;; changes usefully, in TodoMX either updating the DOM or writing
   ;;; to localStorage:
+
   #_(do
       (io-clear-storage)
       (bulk-todo "ccc-" 400))
@@ -95,6 +102,7 @@
                     (todo-entry-field))
 
             (todo-list-items)
+
             (dashboard-footer))
 
    (footer {:class "info"}
@@ -172,6 +180,10 @@
 
 ;; --- to-do item LI -----------------------------------------
 
+(defn jsx->cljs
+  [x]
+  (into {} (for [k (.keys js/Object x)] [k (aget x k)])))
+
 (declare todo-edit)
 
 (defn todo-list-item [me todo]
@@ -201,6 +213,19 @@
                                (classlist/add li-dom "editing")
                                (tag/input-editing-start edt-dom (td-title todo)))}
                (td-title todo))
+
+        (input {::tag/type "date"
+                :class     "due-by"
+                :value     (c?n (when-let [db (td-due-by todo)]
+                                  (let [db$ (tmc/to-string (tmc/from-long db))]
+                                    (subs db$ 0 10))))
+                ;; :onchange  #(println :onchange!!!! d%)
+                :oninput   #(let [dom (.-target %)]
+                              (let [d (form/getValue dom)]
+                                (println :oninput!! dom d)
+                                (println :oninput!! (tmc/from-string d))
+                                (println :oninput!! (tmc/to-long (tmc/from-string d)) (now))
+                                (md-reset! todo :due-by (tmc/to-long (tmc/from-string d)))))})
 
         (button {:class   "destroy"
                  :onclick #(td-delete! todo)}))

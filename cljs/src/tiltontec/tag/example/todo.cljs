@@ -22,6 +22,8 @@
 
 (def TODO_LS_PREFIX "todos-matrixcljs.")
 
+
+
 (defn todo-list []
   (md/make ::todo-list
     :items-raw (c?n (load-all))
@@ -57,6 +59,7 @@
                      ;; now wrap mutable slots as Cells...
                      :title     (c-in (:title islots))
                      :completed (c-in false)
+                     :due-by    (c-in (+ (now) (* 10 24 60 60 1000)))
                      :deleted   (c-in nil)})
         todo (apply md/make (flatten (into [] net-slots)))]
 
@@ -79,6 +82,9 @@
 
 (defn td-id [td]
   (md-get td :id))
+
+(defn td-due-by [td]
+  (md-get td :due-by))
 
 (defn td-completed [td]
   (md-get td :completed))
@@ -136,6 +142,7 @@
                          ;; we wrap in cells those reloaded slots we might mutate...
                          :title     (c-in (:title islots))
                          :completed (c-in (:completed islots false))
+                         :due-by    (c-in (:due-by islots))
                          :deleted   (or (:deleted islots)
                                         (c-in nil))})))))
 
@@ -149,5 +156,5 @@
                          (td-to-json td))))
 
 (defn- td-to-json [todo]
-  (map-to-json (into {} (for [k [:id :created :title :completed :deleted]]
+  (map-to-json (into {} (for [k [:id :created :title :completed :deleted :due-by]]
                           [k (md-get todo k)]))))

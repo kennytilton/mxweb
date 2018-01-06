@@ -4,13 +4,15 @@
     [tiltontec.model.core :as md]
     [tiltontec.tag.html :refer [tag-dom-create *tag-trace*]]
     ;;[todomx.todomvc :as tmx]
-    [tiltontec.tag.example.testing :as test]
+    ;;[tiltontec.tag.example.testing :as test]
     [tiltontec.tag.example.todomvc :as todo]
     ;;[tiltontec.tag.example.gentle-intro :as gi]
     ;;[tiltontec.tag.example.ticktock :as tt]
     ;;git commit [tiltontec.tag.example.startwatch :as sw]
-    [ajax.core :refer [GET POST]]
-    [taoensso.tufte :as tufte :refer (defnp p profiled profile)]))
+
+    [taoensso.tufte :as tufte :refer (defnp p profiled profile)]
+    [cljs-time.coerce :refer [from-long to-string] :as tmc])
+  (:import [goog.date UtcDateTime]))
 
 (enable-console-print!)
 
@@ -19,11 +21,19 @@
 (let [root (dom/getElement "tagroot")
 
       ;; switch next to, eg, (gi/matrix-build!) to explore the gentle intro
-      app-matrix (test/matrix-build!)
+      app-matrix (todo/matrix-build!)
 
       app-dom (binding [*tag-trace* nil]                ;; <-- set to nil if console too noisy
                 (tag-dom-create
-                  (md/md-get app-matrix :mx-dom)))]
+                  (md/md-get app-matrix :mx-dom)))
+
+      n (.getTime (js/Date.))
+      ;; tom (some-> n UtcDateTime.fromTimestamp)
+      ;;   (some-> millis UtcDateTime.fromTimestamp))
+
+      tom2  (tmc/from-long n)]
+
+  (prn :now!!!! n :tom2 tom2 (tmc/to-string tom2))
 
   (prn :app-dom!!!! (str app-dom))
 

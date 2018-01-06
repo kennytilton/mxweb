@@ -1,7 +1,7 @@
 (require '[cljs.build.api :as b])
 
 (b/watch "src"
-  {:main 'todomx.core
-   :output-to "out/todomx.js"
+  {:main 'tiltontec.tag.core
+   :output-to "out/tag.js"
    :output-dir "out"
    :verbose false})

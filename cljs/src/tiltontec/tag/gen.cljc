@@ -44,7 +44,7 @@
                       :kids c?kids
                       (concat (vec (apply concat (seq (dissoc attrs :id))))
                               (vec (apply concat (seq aux)))))]
-    (println :made-tag!! tag-id (keys @mx-tag))
+    ;;(println :made-tag!! tag-id (keys @mx-tag))
     (swap! tag-by-id assoc tag-id mx-tag)
     mx-tag))
 
