@@ -164,7 +164,7 @@
               :class (classlist/set dom (if (sequential? newv)
                                           (str/join " " newv)
                                           newv))
-              ;; :checked (set! (.-checked dom) newv)
+              :checked (set! (.-checked dom) newv)
               (do
                 (pln :obs-by-type-genset slot newv)
                 (.setAttribute dom (name slot) newv))))

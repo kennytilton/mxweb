@@ -183,8 +183,8 @@
 
     (input {:id        "toggle-all"
             :class     "toggle-all"
-            ::tag/type "checkbox"}
-           {:checked (c? (= (md-get (mx-par me) :action) :uncomplete))})
+            ::tag/type "checkbox"
+            :checked (c? (= (md-get (mx-par me) :action) :uncomplete))})
 
     (label {:for     "toggle-all"
             ;; a bit ugly: handler below is not in kids rule of LABEL, so 'me' is the DIV.
@@ -197,9 +197,7 @@
 
 ;; --- to-do item LI -----------------------------------------
 
-(defn jsx->cljs
-  [x]
-  (into {} (for [k (.keys js/Object x)] [k (aget x k)])))
+
 
 (declare todo-edit)
 
@@ -235,7 +233,7 @@
 
       (div {:class "view"}
         (input {:class   "toggle" ::tag/type "checkbox"
-                :checked (c? (td-completed todo))
+                :checked (c? (not (nil? (td-completed todo))))
                 :onclick #(td-toggle-completed! todo)})
 
         (label {:ondblclick #(let [li-dom (dom/getAncestorByTagNameAndClass
@@ -254,10 +252,11 @@
                                        (< time-left (* 24 3600 1000)) "orange"
                                        (< time-left (* 2 24 3600 1000)) "yellow"
                                        :default "green"))
-                                   "gray")})}
+                                   "lightgray")})}
                (td-title todo))
 
         (input {::tag/type "date"
+                :id "due"
                 :class     "due-by"
                 :value     (c?n (when-let [db (td-due-by todo)]
                                   (let [db$ (tmc/to-string (tmc/from-long db))]
