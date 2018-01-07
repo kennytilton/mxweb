@@ -401,3 +401,17 @@ html .clear-completed:active {
 .boulder {
     font-weight: 900;
     }
+
+/* brought over from tick-tock example */
+
+.std-clock {
+    font-size: 48px;
+    line-height: 1.2em;
+    font-family: HelveticaNeue-UltraLight, Helvetica;
+}
+
+@media (max-width: 768px) {
+    .std-clock {
+        font-size: 64px;
+    }
+}

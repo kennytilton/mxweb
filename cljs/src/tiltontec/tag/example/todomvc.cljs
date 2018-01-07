@@ -11,7 +11,7 @@
 
 
             [tiltontec.model.core :refer [matrix mx-par md-get md-reset!
-                                          mxi-find mxu-find-class mxu-find-type
+                                          fget mxi-find mxu-find-class mxu-find-type
                                           kid-values-kids] :as md]
             [tiltontec.tag.html
              :refer [io-read io-upsert io-clear-storage
@@ -41,6 +41,17 @@
 
 ;;; --- the beef: matrix-build! ------------------------------------------
 
+;(defn clock []
+;  (div {:class   "example-clock"
+;        :style   (c? (str "color:" (md-get (mxu-find-name me :timecolor) :value)))
+;
+;        :content (c? (first
+;                       (str/split " "
+;                         (.toTimeString
+;                           (js/Date.
+;                             (md-get me :when))))))))
+
+
 (defn matrix-build! []
   ;;; In general, a matrix is a reactive structure that generates through side
   ;;; effects something else of practical use. In this case that something else
@@ -63,6 +74,8 @@
       (bulk-todo "ccc-" 400))
 
   (reset! matrix (md/make ::todoApp
+
+
                    ;; load all to-dos into an observable list....
                    :todos (c?once (tiltontec.tag.example.todo/todo-list))
 
@@ -91,12 +104,16 @@
 ;;; --- the landing page -------------------------------
 
 ;; We use subroutines to break up the DOM generation into manageable chunks.
-(declare todo-list-items todo-list-item dashboard-footer todo-entry-field)
+(declare todo-list-items todo-list-item dashboard-footer todo-entry-field std-clock)
 ;; We do so selectively so we are not forever chasing around to find functionality.
 ;; e.g, the footer is trivial, short, and callback-free: no need to break it out.
 
+
+
 (defn landing-page []
-  [(section {:class "todoapp"}
+  [
+   (section {:class "todoapp"}
+            (std-clock)
             (header {:class "header"}
                     (h1 "todos")
                     (todo-entry-field))
@@ -186,6 +203,21 @@
 
 (declare todo-edit)
 
+(defn std-clock []
+  (div {:class   "std-clock"
+        :content (c? (subs (.toDateString
+                             (js/Date.
+                               (md-get me :clock)))
+                           4))}
+    {:clock  (c-in (now)
+                   :obs (fn-obs #_(println :clockobs new old)
+                          ))
+     :ticker (c?once (js/setInterval
+                       #(let [time-step (* 24 3600 1000)
+                              w (md-get me :clock)]
+                          (md-reset! me :clock (+ w time-step)))
+                       1000))}))
+
 (defn todo-list-item [me todo]
   ;;(println :building-li (:title @todo))
   (li {:class   (c? (if (td-completed todo) "completed" ""))
@@ -211,7 +243,18 @@
                                    edt-dom (dom/getElementByClass
                                              "edit" li-dom)]
                                (classlist/add li-dom "editing")
-                               (tag/input-editing-start edt-dom (td-title todo)))}
+                               (tag/input-editing-start edt-dom (td-title todo)))
+
+                :style      (c? {:background-color
+                                 (if-let [due (td-due-by todo)]
+                                   (let [clock (mxu-find-class me "std-clock")
+                                         time-left (- due (md-get clock :clock))]
+                                     (cond
+                                       (neg? time-left) "red"
+                                       (< time-left (* 24 3600 1000)) "orange"
+                                       (< time-left (* 2 24 3600 1000)) "yellow"
+                                       :default "green"))
+                                   "gray")})}
                (td-title todo))
 
         (input {::tag/type "date"
@@ -220,12 +263,10 @@
                                   (let [db$ (tmc/to-string (tmc/from-long db))]
                                     (subs db$ 0 10))))
                 ;; :onchange  #(println :onchange!!!! d%)
-                :oninput   #(let [dom (.-target %)]
-                              (let [d (form/getValue dom)]
-                                (println :oninput!! dom d)
-                                (println :oninput!! (tmc/from-string d))
-                                (println :oninput!! (tmc/to-long (tmc/from-string d)) (now))
-                                (md-reset! todo :due-by (tmc/to-long (tmc/from-string d)))))})
+                :oninput   #(md-reset! todo :due-by
+                              (tmc/to-long
+                                (tmc/from-string
+                                  (form/getValue (.-target %)))))})
 
         (button {:class   "destroy"
                  :onclick #(td-delete! todo)}))

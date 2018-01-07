@@ -59,7 +59,7 @@
                      ;; now wrap mutable slots as Cells...
                      :title     (c-in (:title islots))
                      :completed (c-in false)
-                     :due-by    (c-in (+ (now) (* 10 24 60 60 1000)))
+                     :due-by    (c-in nil #_ (+ (now) (* 10 24 60 60 1000)))
                      :deleted   (c-in nil)})
         todo (apply md/make (flatten (into [] net-slots)))]
 
