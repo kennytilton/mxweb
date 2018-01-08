@@ -44,17 +44,6 @@
 
 ;;; --- the beef: matrix-build! ------------------------------------------
 
-;(defn clock []
-;  (div {:class   "example-clock"
-;        :style   (c? (str "color:" (md-get (mxu-find-name me :timecolor) :value)))
-;
-;        :content (c? (first
-;                       (str/split " "
-;                         (.toTimeString
-;                           (js/Date.
-;                             (md-get me :when))))))))
-
-
 (defn matrix-build! []
   ;;; In general, a matrix is a reactive structure that generates through side
   ;;; effects something else of practical use. In this case that something else
@@ -110,8 +99,6 @@
 (declare todo-list-items dashboard-footer todo-entry-field std-clock)
 ;; We do so selectively so we are not forever chasing around to find functionality.
 ;; e.g, the footer is trivial, short, and callback-free: no need to break it out.
-
-
 
 (defn landing-page []
   [
@@ -203,7 +190,7 @@
 ;; --- to-do item LI -----------------------------------------
 
 (defn std-clock []
-  (let [steps (atom 4)]
+  (let [steps (atom 0)]
     (div {:class   "std-clock"
           :content (c? (subs (.toDateString
                                (js/Date.
@@ -211,7 +198,7 @@
                              4))}
       {:clock  (c-in (now))
        :ticker (c?once (js/setInterval
-                         #(when true ;; (pos? (swap! steps dec))
+                         #(when (pos? (swap! steps dec))
                             (let [time-step (* 6 3600 1000)
                                   w (md-get me :clock)]
                               (md-reset! me :clock (+ w time-step))))
