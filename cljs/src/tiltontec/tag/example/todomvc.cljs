@@ -1,5 +1,6 @@
 (ns tiltontec.tag.example.todomvc
   (:require [cljs.pprint :as pp]
+            [cljs-time.coerce :as tmc]
             [clojure.string :as str]
             [bide.core :as r]
             [taoensso.tufte :as tufte :refer-macros (defnp profiled profile)]
@@ -22,7 +23,9 @@
 
             [tiltontec.tag.gen
              :refer-macros [section header h1 input footer p a span label ul li div button br]
-             :refer [dom-tag]]
+             :refer [dom-tag evt-tag]]
+
+            [tiltontec.tag.style :refer [make-css-inline]]
 
             [goog.dom :as dom]
             [goog.dom.classlist :as classlist]
@@ -35,7 +38,7 @@
              :refer [make-todo td-title td-created bulk-todo
                      td-completed td-due-by td-upsert td-delete! load-all
                      td-id td-toggle-completed!]]
-            [cljs-time.coerce :as tmc]))
+            [tiltontec.tag.example.todomx-list-item :refer [todo-list-item]]))
 
 (declare landing-page mx-todos mx-todo-items mx-find-matrix start-router mx-route)
 
@@ -104,7 +107,7 @@
 ;;; --- the landing page -------------------------------
 
 ;; We use subroutines to break up the DOM generation into manageable chunks.
-(declare todo-list-items todo-list-item dashboard-footer todo-entry-field std-clock)
+(declare todo-list-items  dashboard-footer todo-entry-field std-clock)
 ;; We do so selectively so we are not forever chasing around to find functionality.
 ;; e.g, the footer is trivial, short, and callback-free: no need to break it out.
 
@@ -134,7 +137,7 @@
           :autofocus   true
           :placeholder "What needs doing?"
           :onkeypress  #(when (= (.-key %) "Enter")
-                          (profile {}
+                          (do ;; profile {}
                                    (let [raw (form/getValue (.-target %))
                                          title (str/trim raw)
                                          todos (mx-todos)]
@@ -160,7 +163,8 @@
                ;; for avoiding re-genning a complete list of kids just to add or remove a few.
                ;; overkill for short TodoMVC to-do lists, but worth showing.
 
-               {:kid-values  (c? (when-let [rte (mx-route me)]
+               {:selections  (c-in nil)
+                :kid-values  (c? (when-let [rte (mx-route me)]
                                    (sort-by td-created
                                             (md-get (mx-todos me)
                                                     (case rte
@@ -168,7 +172,8 @@
                                                       "Completed" :items-completed
                                                       "Active" :items-active)))))
                 :kid-key     #(md-get % :todo)
-                :kid-factory todo-list-item}
+                :kid-factory (fn [me todo]
+                               (todo-list-item me todo (mx-find-matrix me)))}
 
                ;; cache is prior value for this implicit 'kids' slot; k-v-k uses it for diffing
                (kid-values-kids me cache))))
@@ -184,7 +189,7 @@
     (input {:id        "toggle-all"
             :class     "toggle-all"
             ::tag/type "checkbox"
-            :checked (c? (= (md-get (mx-par me) :action) :uncomplete))})
+            :checked   (c? (= (md-get (mx-par me) :action) :uncomplete))})
 
     (label {:for     "toggle-all"
             ;; a bit ugly: handler below is not in kids rule of LABEL, so 'me' is the DIV.
@@ -197,103 +202,18 @@
 
 ;; --- to-do item LI -----------------------------------------
 
-
-
-(declare todo-edit)
-
 (defn std-clock []
   (div {:class   "std-clock"
         :content (c? (subs (.toDateString
                              (js/Date.
                                (md-get me :clock)))
                            4))}
-    {:clock  (c-in (now)
-                   :obs (fn-obs #_(println :clockobs new old)
-                          ))
+    {:clock  (c-in (now))
      :ticker (c?once (js/setInterval
-                       #(let [time-step (* 24 3600 1000)
+                       #(let [time-step (* 4 3600 1000)
                               w (md-get me :clock)]
                           (md-reset! me :clock (+ w time-step)))
                        1000))}))
-
-(defn todo-list-item [me todo]
-  ;;(println :building-li (:title @todo))
-  (li {:class   (c? (if (td-completed todo) "completed" ""))
-       :display (c? (if-let [route (mx-route me)]
-                      (cond
-                        (or (= route "All")
-                            (xor (= route "Active")
-                                 (td-completed todo))) "block"
-                        :default "none")
-                      "block"))}
-      ;;; custom slots..
-      {:todo    todo
-       ;; above is also key to identify lost/gained LIs, in turn to optimize list maintenance
-       :editing (c-in false)}
-
-      (div {:class "view"}
-        (input {:class   "toggle" ::tag/type "checkbox"
-                :checked (c? (not (nil? (td-completed todo))))
-                :onclick #(td-toggle-completed! todo)})
-
-        (label {:ondblclick #(let [li-dom (dom/getAncestorByTagNameAndClass
-                                            (.-target %) "li")
-                                   edt-dom (dom/getElementByClass
-                                             "edit" li-dom)]
-                               (classlist/add li-dom "editing")
-                               (tag/input-editing-start edt-dom (td-title todo)))
-
-                :style      (c? {:background-color
-                                 (if-let [due (td-due-by todo)]
-                                   (let [clock (mxu-find-class me "std-clock")
-                                         time-left (- due (md-get clock :clock))]
-                                     (cond
-                                       (neg? time-left) "red"
-                                       (< time-left (* 24 3600 1000)) "orange"
-                                       (< time-left (* 2 24 3600 1000)) "yellow"
-                                       :default "green"))
-                                   "lightgray")})}
-               (td-title todo))
-
-        (input {::tag/type "date"
-                :id "due"
-                :class     "due-by"
-                :value     (c?n (when-let [db (td-due-by todo)]
-                                  (let [db$ (tmc/to-string (tmc/from-long db))]
-                                    (subs db$ 0 10))))
-                ;; :onchange  #(println :onchange!!!! d%)
-                :oninput   #(md-reset! todo :due-by
-                              (tmc/to-long
-                                (tmc/from-string
-                                  (form/getValue (.-target %)))))})
-
-        (button {:class   "destroy"
-                 :onclick #(td-delete! todo)}))
-
-      (input {:class     "edit"
-              :onblur    #(todo-edit % todo)
-              :onkeydown #(todo-edit % todo)})))
-
-(defn todo-edit [e todo]
-  (let [edt-dom (.-target e)
-        li-dom (dom/getAncestorByTagNameAndClass edt-dom "li")]
-
-    (when (classlist/contains li-dom "editing")
-      (let [title (str/trim (form/getValue edt-dom))
-            stop-editing #(classlist/remove li-dom "editing")]
-        (cond
-          (or (= (.-type e) "blur")
-              (= (.-key e) "Enter"))
-          (do
-            (stop-editing)                                  ;; has to go first cuz a blur event will sneak in
-            (if (= title "")
-              (td-delete! todo)
-              (md-reset! todo :title title)))
-
-          (= (.-key e) "Escape")
-          ;; this could leave the input field with mid-edit garbage, but
-          ;; that gets initialized correctly when starting editing
-          (stop-editing))))))
 
 ;; --- dashboard -------------------------------------
 

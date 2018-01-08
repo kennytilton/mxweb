@@ -111,7 +111,7 @@
     ;; oldv unbound means initial build and this incremental add/remove
     ;; is needed only when kids change post initial creation
 
-    (p ::observe-kids
+    (do ;; p ::observe-kids
        (let [pdom (tag-dom me)
           lost (clojure.set/difference (set oldv) (set newv))
           gained (clojure.set/difference (set newv) (set oldv))]
@@ -139,7 +139,8 @@
                      (dom/appendChild frag
                                       (if (some #{newk} oldv)
                                         (.removeChild pdom (tag-dom newk))
-                                        (tag-dom-create newk))))
+                                        (do (println :dom-hit-newkid!!!! (tagfo newk))
+                                            (tag-dom-create newk)))))
 
                    (dom/removeChildren pdom)
                    (dom/appendChild pdom frag)))))))
@@ -149,14 +150,15 @@
 (defmethod observe-by-type [:tiltontec.tag.html/tag] [slot me newv oldv _]
   (when (not= oldv unbound)
     (when-let [dom (tag-dom me)]
-      (when false ;; true ;; *tag-trace*
-        (pln :observing-tagtype (:attr-keys @me) (tagfo me) slot newv oldv))
+      (when *tag-trace*
+        (pln :observing-tagtype (tagfo me) slot newv oldv))
 
       (cond
         (= slot :content) (set! (.-innerHTML dom) newv)
 
         (some #{slot} (:attr-keys @me))
         (do
+          (pln :dom-hit-attr!!!! (tagfo me) slot newv oldv)
           (case slot
               :style (set! (.-style dom) (style-string newv))
 

@@ -52,18 +52,8 @@
     (do
       (println :ss-unknown (type s)))))
 
-
-#_(case slot
-    :style (set! (.-style dom) newv)
-    :hidden (set! (.-hidden dom) newv)
-    :class (classlist/set dom newv)
-    :checked (set! (.-checked dom) newv)
-    )
-
-#_(case slot
-    :display (set! (.-display (.-style dom)) newv))
-
 (defmethod observe-by-type [:tiltontec.tag.css/css] [slot me newv oldv _]
   (when (not= oldv unbound)
     (let [dom (tag-dom (:tag @me))]
+      (println :dom-hit-setStyle!!! slot newv oldv)
       (gstyle/setStyle dom (name slot) newv))))

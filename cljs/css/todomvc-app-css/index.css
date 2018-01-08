@@ -162,6 +162,8 @@ body {
 	padding: 0;
 }
 
+
+
 .todo-list li.editing .edit {
 	display: block;
 	width: 506px;
@@ -218,6 +220,10 @@ body {
 .todo-list li.completed label {
 	color: #d9d9d9;
 	text-decoration: line-through;
+}
+
+.todo-list li.chosen {
+    border-left: 4px solid cyan;
 }
 
 .todo-list li .due-by {
@@ -405,13 +411,13 @@ html .clear-completed:active {
 /* brought over from tick-tock example */
 
 .std-clock {
-    font-size: 48px;
+    font-size: 36px;
     line-height: 1.2em;
     font-family: HelveticaNeue-UltraLight, Helvetica;
 }
 
 @media (max-width: 768px) {
     .std-clock {
-        font-size: 64px;
+        font-size: 48px;
     }
 }
