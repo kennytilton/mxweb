@@ -12,7 +12,7 @@
 
 
             [tiltontec.model.core :refer [matrix mx-par md-get md-reset!
-                                          fget mxi-find mxu-find-class mxu-find-type
+                                          fget mxi-find mxu-find-type
                                           kid-values-kids] :as md]
             [tiltontec.tag.html
              :refer [io-read io-upsert io-clear-storage
@@ -107,7 +107,7 @@
 ;;; --- the landing page -------------------------------
 
 ;; We use subroutines to break up the DOM generation into manageable chunks.
-(declare todo-list-items  dashboard-footer todo-entry-field std-clock)
+(declare todo-list-items dashboard-footer todo-entry-field std-clock)
 ;; We do so selectively so we are not forever chasing around to find functionality.
 ;; e.g, the footer is trivial, short, and callback-free: no need to break it out.
 
@@ -137,18 +137,18 @@
           :autofocus   true
           :placeholder "What needs doing?"
           :onkeypress  #(when (= (.-key %) "Enter")
-                          (do ;; profile {}
-                                   (let [raw (form/getValue (.-target %))
-                                         title (str/trim raw)
-                                         todos (mx-todos)]
-                                     (when-not (= title "")
-                                       (do                  ;; tufte/p ::growtodo
-                                         (md-reset! todos :items-raw
-                                           (do              ;; tufte/p ::conj-todo
-                                             (conj (md-get todos :items-raw) ;; 'raw' is 'before filtering out logical deletes'
-                                                   (tufte/p ::mktodo
-                                                     (make-todo {:title title})))))))
-                                     (form/setValue (.-target %) ""))))}))
+                          (do                               ;; profile {}
+                            (let [raw (form/getValue (.-target %))
+                                  title (str/trim raw)
+                                  todos (mx-todos)]
+                              (when-not (= title "")
+                                (do                         ;; tufte/p ::growtodo
+                                  (md-reset! todos :items-raw
+                                    (do                     ;; tufte/p ::conj-todo
+                                      (conj (md-get todos :items-raw) ;; 'raw' is 'before filtering out logical deletes'
+                                            (tufte/p ::mktodo
+                                              (make-todo {:title title})))))))
+                              (form/setValue (.-target %) ""))))}))
 
 ;; --- to-do list UL ---------------------------------
 (declare toggle-all)
@@ -203,17 +203,19 @@
 ;; --- to-do item LI -----------------------------------------
 
 (defn std-clock []
-  (div {:class   "std-clock"
-        :content (c? (subs (.toDateString
-                             (js/Date.
-                               (md-get me :clock)))
-                           4))}
-    {:clock  (c-in (now))
-     :ticker (c?once (js/setInterval
-                       #(let [time-step (* 4 3600 1000)
-                              w (md-get me :clock)]
-                          (md-reset! me :clock (+ w time-step)))
-                       1000))}))
+  (let [steps (atom 4)]
+    (div {:class   "std-clock"
+          :content (c? (subs (.toDateString
+                               (js/Date.
+                                 (md-get me :clock)))
+                             4))}
+      {:clock  (c-in (now))
+       :ticker (c?once (js/setInterval
+                         #(when true ;; (pos? (swap! steps dec))
+                            (let [time-step (* 6 3600 1000)
+                                  w (md-get me :clock)]
+                              (md-reset! me :clock (+ w time-step))))
+                         1000))})))
 
 ;; --- dashboard -------------------------------------
 

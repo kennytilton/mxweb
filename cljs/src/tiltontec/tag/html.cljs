@@ -9,7 +9,7 @@
     [tiltontec.cell.evaluate :refer [not-to-be not-to-be-self]]
     [tiltontec.model.core
      :refer-macros [the-kids mdv!]
-     :refer [md-get fasc fm! make md-reset! backdoor-reset!]
+     :refer [fget md-get fasc fm! make md-reset! backdoor-reset!]
      :as md]
 
     [tiltontec.tag.style
@@ -29,7 +29,9 @@
 (def ^:dynamic *tag-trace* false)
 
 (defn tagfo [me]
-  (select-keys @me [:id :tag :class :name]))
+  (if (string? me)
+    "string"
+    (select-keys @me [:id :tag :class :name])))
 
 (defn dom-has-class [dom class]
   (classlist/contains dom class))
@@ -110,7 +112,7 @@
   (when (not= oldv unbound)
     ;; oldv unbound means initial build and this incremental add/remove
     ;; is needed only when kids change post initial creation
-
+    ;;(println :obstagkids!!!!! (tagfo me))
     (do ;; p ::observe-kids
        (let [pdom (tag-dom me)
           lost (clojure.set/difference (set oldv) (set newv))
@@ -122,6 +124,7 @@
         (doseq [oldk lost]
           (.removeChild pdom (tag-dom oldk))
           (when-not (string? oldk)
+            ;;(println :obstagkids-dropping!!!!! (tagfo oldk))
             (not-to-be oldk)))
 
         :default (let [frag (.createDocumentFragment js/document)]
@@ -175,6 +178,24 @@
         (throw (js/Error. (str "tag obs sees oldskool style: " slot)))))))
 
 ;;; --- local storage ------------------------
+
+(defn mxu-find-class
+  "Search up the matrix from node 'where' looking for element with class"
+  [where class]
+  (fget #(= (name class) (md-get % :class))
+        where :me? false :up? true))
+
+(defn mxu-find-tag
+"Search up the matrix from node 'where' looking for element with class"
+  [where tag]
+  (fget #(= (name tag) (md-get % :tag))
+        where :me? false :up? true))
+
+(defn mxu-find-id
+"Search up the matrix from node 'where' looking for element with class"
+  [where id]
+  (fget #(= (name id) (md-get % :id))
+        where :me? false :up? true))
 
 ;;; --- localStorage io implementation --------------------------------
 

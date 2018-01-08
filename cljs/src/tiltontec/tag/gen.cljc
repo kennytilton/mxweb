@@ -8,6 +8,9 @@
             [tiltontec.cell.evaluate :refer [not-to-be not-to-be-self]]
             [tiltontec.model.core :refer [make md-get] :as md]))
 
+(defn tagfo [me]
+  (select-keys @me [:id :tag :class :name]))
+
 (def +tag-sid+ (atom -1))
 
 (defn tag-init! []
@@ -26,7 +29,7 @@
     (= "" (.-id dom)) (do (println :no-id-try-pa (.-parentNode dom))
                           (dom-tag (.-parentNode dom)))
     :default (do
-               (println :dom-tag-really-sees-id (.-id dom)(type (.-id dom)))
+               ;;(println :dom-tag-really-sees-id (.-id dom)(type (.-id dom)))
                (let [tag (get @tag-by-id (.-id dom))]
                  (assert tag (str "dom-tag did not find js for id " (.-id dom)
                                   " of dom " dom))
@@ -50,6 +53,13 @@
 
 (defmethod not-to-be [:tiltontec.tag.html/tag] [me]
   ;; todo: worry about leaks
+  ;; (println :not-to-be-tag!!! (tagfo me))
+
+  (when-let [style (:style @me)]
+    (when (md-ref? style)
+      ;;(println :popping-style style)
+      (not-to-be style)))
+
   (doseq [k (:kids @me)]
     (when (md-ref? k)
       (not-to-be k)))
