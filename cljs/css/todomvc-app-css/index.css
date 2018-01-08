@@ -274,6 +274,14 @@ body {
 	margin-bottom: -1px;
 }
 
+.todo-list li button.li-show {
+    border:2px solid red;
+    height:1em;
+    background: pink;
+    margin-left:18px;
+    margin-bottom:6px;
+}
+
 .footer {
 	color: #777;
 	padding: 10px 15px;
