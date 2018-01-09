@@ -55,5 +55,5 @@
 (defmethod observe-by-type [:tiltontec.tag.css/css] [slot me newv oldv _]
   (when (not= oldv unbound)
     (let [dom (tag-dom (:tag @me))]
-      (println :dom-hit-setStyle!!! slot newv oldv)
+      ;;(println :dom-hit-setStyle!!! slot newv oldv)
       (gstyle/setStyle dom (name slot) newv))))

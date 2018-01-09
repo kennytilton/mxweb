@@ -161,7 +161,7 @@
 
         (some #{slot} (:attr-keys @me))
         (do
-          (pln :dom-hit-attr!!!! (tagfo me) slot newv oldv)
+          ;;(pln :dom-hit-attr!!!! (tagfo me) slot newv oldv)
           (case slot
               :style (set! (.-style dom) (style-string newv))
 

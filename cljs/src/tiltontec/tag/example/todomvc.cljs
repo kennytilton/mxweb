@@ -96,7 +96,7 @@
 ;;; --- the landing page -------------------------------
 
 ;; We use subroutines to break up the DOM generation into manageable chunks.
-(declare todo-list-items dashboard-footer todo-entry-field std-clock)
+(declare todo-list-items dashboard-footer todo-entry-field std-clock ae-autocheck?)
 ;; We do so selectively so we are not forever chasing around to find functionality.
 ;; e.g, the footer is trivial, short, and callback-free: no need to break it out.
 
@@ -109,6 +109,7 @@
                     (todo-entry-field))
 
             (todo-list-items)
+            (ae-autocheck?)
 
             (dashboard-footer))
 
@@ -186,6 +187,27 @@
                           (md-reset! td :completed (when (= action :complete) (now)))))}
            "Mark all as complete")))
 
+;; --- AE autocheck -----------------------
+
+(defn ae-autocheck? []
+  (div {;;:onclick #(println :div!!! %)
+        :style "margin:24px"}
+    {:autocheck? (c-in false)}
+
+    (input {:id        "ae-autocheckbox"
+            :class     "ae-autocheckbox"
+            ::tag/type "checkbox"
+            :checked   (c? (println :checked????? (md-get (mx-par me) :autocheck?))
+                           (md-get (mx-par me) :autocheck?))})
+
+    (label {:for     "ae-autocheckbox"
+            ;; a bit ugly: handler below is not in kids rule of LABEL, so 'me' is the DIV.
+            :onclick #(let [check? (md-get me :autocheck?)]
+                        (event/preventDefault %)            ;; else browser messes with checked, which we handle
+                        (println :ae-label click! check?)
+                        (md-reset! me :autocheck? (not check?)))}
+           "Auto AE")))
+
 
 ;; --- to-do item LI -----------------------------------------
 
@@ -213,6 +235,8 @@
           (span {:class   "todo-count"
                  :content (c? (pp/cl-format nil "<strong>~a</strong>  item~:P remaining"
                                             (count (remove td-completed (mx-todo-items me)))))})
+
+
 
           (ul {:class "filters"}
               (for [[label route] [["All", "#/"]

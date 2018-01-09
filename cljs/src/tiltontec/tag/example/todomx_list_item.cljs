@@ -7,6 +7,7 @@
             [tiltontec.util.core :refer [pln xor now]]
             [tiltontec.cell.base :refer [unbound ia-type *within-integrity* *defer-changes*]]
             [tiltontec.cell.core :refer-macros [c? c?+ c?n c?+n c?once] :refer [c-in]]
+            [tiltontec.cell.evaluate :refer [not-to-be]]
             [tiltontec.cell.observer :refer-macros [fn-obs]]
             [tiltontec.cell.synapse
              :refer-macros [with-synapse]
@@ -46,7 +47,8 @@
              :refer [make-todo td-title td-created bulk-todo
                      td-completed td-due-by td-upsert td-delete! load-all
                      td-id td-toggle-completed!]]
-            [cljs-time.coerce :as tmc]))
+            [cljs-time.coerce :as tmc]
+            [clojure.string :as $]))
 
 (declare todo-edit ae-explorer)
 
@@ -119,7 +121,14 @@
               :onblur    #(todo-edit % todo)
               :onkeydown #(todo-edit % todo)})))
 
-(def ae-by-brand "https://api.fda.gov/drug/event.json?search=patient.drug.openfda.brand_name:~(~a~)&limit=1")
+(defn de-whitespace [s]
+  ($/replace s #"\s" ""))
+
+#_
+    (remove #{ \n\r} "https://rxnav.nlm.nih.gov/REST/interaction/list.json?
+                   rxcuis=861226+1170673+1151366+316051+1738581+315971+854873+901803")
+
+(def ae-by-brand "https://api.fda.gov/drug/event.json?search=patient.drug.openfda.brand_name:~(~a~)&limit=3")
 
 (defn ae-explorer [todo]
   (button {:class "li-show"
@@ -127,11 +136,41 @@
                         (println :aex-aes!!! (td-title todo) aes)
                         (when (not= 200 (:status aes))
                           "display:none")))}
-          {:ae (c? (do ;; with-synapse (:github [])
-                     (println :aex-looking-up!!!! (td-title todo))
+
+          {:ae (c?+ [:obs (fn-obs
+                            (when (not= old unbound)
+                              ;;(println :aex-tossing-old-xhr!! old)
+                              (not-to-be old)))]
+                    (do
+                     ;;(println :aex-looking-up!!!! (td-title todo))
                      (send-xhr (pp/cl-format nil ae-by-brand (td-title todo)))))}
+
           (span {:style "font-size:0.7em;margin:2px;margin-top:0;vertical-align:top"}
-                "Adverse Events")))
+                "View Adverse Events")))
+
+(def nih-interactions
+  "https://rxnav.nlm.nih.gov/REST/interaction/list.json?rxcuis=~{4242~a~^+~}")
+
+;; zolpidem 1170673, 854873
+;; bupropion 1151366
+;; sumatriptan 1738581
+;; furosemide 315971
+;; zolmitriptan 901803
+;; adderall 1170620
+
+(defn interaction-explorer [todo]
+  (button {:class "li-show"
+           :style (c? (if-let [ias (xhr-response (md-get me :nih))]
+                        (do
+                          (println :nih-inters!!!  (:status ias))
+                          (when (not= 200 (:status ias))
+                            "display:none"))
+                        "display:none"))}
+          {:nih (c? (let [rxcuis [1170620 315971]]
+                     (println :nih-looking-up!!!! rxcuis)
+                     (send-xhr (pp/cl-format nil nih-interactions rxcuis))))}
+          (span {:style "font-size:0.7em;margin:2px;margin-top:0;vertical-align:top"}
+                "View Interactions")))
 
 (defn todo-edit [e todo]
   (let [edt-dom (.-target e)
