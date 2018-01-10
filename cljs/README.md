@@ -1,4 +1,13 @@
 # Tag
+
+### Usage
+
+Your project.clj dependency: `[com.tiltontec/tag "0.1.0-SNAPSHOT"]`
+
+To build locally, checkout the scripts directory. `scripts/build` to build once, `scripts/watch` to build continuously.
+
+Check examples or source for the several module requires you will need.
+
 ### ...by TodoMVC Example
 
 Welcome to Tag, a sneaky-powerful Web framework as simple as its name.
