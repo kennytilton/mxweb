@@ -190,22 +190,27 @@
 ;; --- AE autocheck -----------------------
 
 (defn ae-autocheck? []
-  (div {;;:onclick #(println :div!!! %)
+  (div {:id "ae-autocheck"
+        :class "ae-autocheck"
+        :onchange #(println :divchg!!! %)
         :style "margin:24px"}
-    {:autocheck? (c-in false)}
+    {:on? (c-in false)}
 
     (input {:id        "ae-autocheckbox"
-            :class     "ae-autocheckbox"
             ::tag/type "checkbox"
-            :checked   (c? (println :checked????? (md-get (mx-par me) :autocheck?))
-                           (md-get (mx-par me) :autocheck?))})
+            :onchange #(let [on? (md-get me :on?)]
+                         (event/preventDefault %)            ;; else browser messes with checked, which we handle
+                         (println :ae-chkbox-onchange on? (.-value (.-target %)))
+                         (md-reset! me :on? (not on?)))
+            :checked   (c? (println :checked????? (md-get (mx-par me) :on?))
+                           (md-get (mx-par me) :on?))})
 
     (label {:for     "ae-autocheckbox"
             ;; a bit ugly: handler below is not in kids rule of LABEL, so 'me' is the DIV.
-            :onclick #(let [check? (md-get me :autocheck?)]
+            :onclick #(let [on? (md-get me :on?)]
                         (event/preventDefault %)            ;; else browser messes with checked, which we handle
-                        (println :ae-label click! check?)
-                        (md-reset! me :autocheck? (not check?)))}
+                        (println :ae-label-click on?)
+                        (md-reset! me :on? (not on?)))}
            "Auto AE")))
 
 

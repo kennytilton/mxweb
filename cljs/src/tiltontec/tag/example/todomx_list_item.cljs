@@ -124,26 +124,31 @@
 (defn de-whitespace [s]
   ($/replace s #"\s" ""))
 
-#_
-    (remove #{ \n\r} "https://rxnav.nlm.nih.gov/REST/interaction/list.json?
+#_(remove #{\n \r} "https://rxnav.nlm.nih.gov/REST/interaction/list.json?
                    rxcuis=861226+1170673+1151366+316051+1738581+315971+854873+901803")
 
 (def ae-by-brand "https://api.fda.gov/drug/event.json?search=patient.drug.openfda.brand_name:~(~a~)&limit=3")
 
 (defn ae-explorer [todo]
   (button {:class "li-show"
-           :style (c? (let [aes (xhr-response (md-get me :ae))]
-                        (println :aex-aes!!! (td-title todo) aes)
-                        (when (not= 200 (:status aes))
-                          "display:none")))}
+           :style (c? (or (when-let [xhr (md-get me :ae)]
+                            (let [aes (xhr-response xhr)]
+                              (println :aex-aes!!! (td-title todo) (:status aes))
+                              (when (= 200 (:status aes))
+                                "display:block")))
+                          "display:none"))}
 
           {:ae (c?+ [:obs (fn-obs
-                            (when (not= old unbound)
+                            (when-not (or (= old unbound) (nil? old))
                               ;;(println :aex-tossing-old-xhr!! old)
                               (not-to-be old)))]
-                    (do
-                     ;;(println :aex-looking-up!!!! (td-title todo))
-                     (send-xhr (pp/cl-format nil ae-by-brand (td-title todo)))))}
+                    (let [chk (mxu-find-class me "ae-autocheck")]
+                      (assert chk)
+                      (println :seeing-autocheck (tagfo chk) (:on? @chk))
+                      (when (md-get chk :on?)
+                        (do
+                          (println :aex-looking-up!!!! (td-title todo))
+                          (send-xhr (pp/cl-format nil ae-by-brand (td-title todo)))))))}
 
           (span {:style "font-size:0.7em;margin:2px;margin-top:0;vertical-align:top"}
                 "View Adverse Events")))
@@ -151,7 +156,7 @@
 (def nih-interactions
   "https://rxnav.nlm.nih.gov/REST/interaction/list.json?rxcuis=~{4242~a~^+~}")
 
-;; zolpidem 1170673, 854873
+;; zolpidem 1170673, 854873  xxx
 ;; bupropion 1151366
 ;; sumatriptan 1738581
 ;; furosemide 315971
@@ -162,13 +167,13 @@
   (button {:class "li-show"
            :style (c? (if-let [ias (xhr-response (md-get me :nih))]
                         (do
-                          (println :nih-inters!!!  (:status ias))
+                          (println :nih-inters!!! (:status ias))
                           (when (not= 200 (:status ias))
                             "display:none"))
                         "display:none"))}
           {:nih (c? (let [rxcuis [1170620 315971]]
-                     (println :nih-looking-up!!!! rxcuis)
-                     (send-xhr (pp/cl-format nil nih-interactions rxcuis))))}
+                      (println :nih-looking-up!!!! rxcuis)
+                      (send-xhr (pp/cl-format nil nih-interactions rxcuis))))}
           (span {:style "font-size:0.7em;margin:2px;margin-top:0;vertical-align:top"}
                 "View Interactions")))
 
