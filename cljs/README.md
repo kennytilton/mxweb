@@ -43,7 +43,7 @@ Now follow these critical elements of the setup instructions from the `mies` tem
 
 If you have not already done so, open `Tag/index.html` in Chrome, FireFox, Opera or Safari on Mac OS X. You should see the same application as the live demo above.
 
-## Reactive programming with MatrixCLJS
+## Reactive programming with Matrix
 
 Now let us look at how we build reactive web apps. Since the Matrix dataflow library drives all aspects of this app -- abstract view, DOM updates, model, and persistence -- we should begin by getting a reasonable handle on Matrix dataflow in the abstract.
 
