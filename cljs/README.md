@@ -61,7 +61,7 @@ Above we see the CSS `class` tracking the completed property of the lexically cl
         :checked (c? (<mget todo :completed))
         :onclick #(mswap! todo :completed not)}) ;; <-- mswap!> triggers the dataflow
 ````
-`mswap!>` is the dataflow "writer" that mirrors `<mget`. It causes all direct or indirect dependents to recalculate. Note also the `checked` attr>ibute, another property following the `completed` property of our todo.
+`mswap!>` is the dataflow "writer" that mirrors `<mget`. It causes all direct or indirect dependents to recalculate. Note also the `checked` attribute, another property following the `completed` property of our todo.
 
 Why the "input" characterization? It cannot be rules all the way down. These cells are the inputs into the dataflow from outside imperative code. The diagram below is of a *directed acyclic graph* that can help us imagine the flow that arises when input cells change and their new values are then consumed by dependent formulaic cells when their recomputation is triggered. In the diagram below, cells 7, 5, and 3 would be the input cells.
 
