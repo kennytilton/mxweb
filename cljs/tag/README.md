@@ -43,29 +43,29 @@ Now follow these critical elements of the setup instructions from the `mies` tem
 
 If you have not already done so, open `Tag/index.html` in Chrome, FireFox, Opera or Safari on Mac OS X. You should see the same application as the live demo above.
 
-## Reactive programming with MatrixCLJS
+## Reactive programming with Matrix
 
 Now let us look at how we build reactive web apps. Since the Matrix dataflow library drives all aspects of this app -- abstract view, DOM updates, model, and persistence -- we should begin by getting a reasonable handle on Matrix dataflow in the abstract.
 
 ### Matrix from 30,000 feet
 With the Matrix library, global variables or individual properties of objects can be expressed as so-called *cells*. Cells come in two flavors. *Formulaic* cells use standard HLL code to compute their value from other cells. For a dead simple example, the *TodoMVC* rules mandate we apply the "completed" class to to-do LIs if and only if the user has marked them as, well, completed:
 ````cljs
-  (li {:class   (c? (if (md-get todo :completed) "completed" ""))
+  (li {:class   (c? (if (<mget todo :completed) "completed" ""))
        ...}...)
 ````
-Above we see the CSS `class` tracking the completed property of the lexically closed-over `todo`, a Matrix-aware object lifted from `window.localStorage`. `(md-get <x> <y>)` establishes dependency of the enclosing formula on property `y` of `x`. A so-called *observer* (discussed below) automatically propagates freshly computed values of `class` to the actual DOM.
+Above we see the CSS `class` tracking the completed property of the lexically closed-over `todo`, a Matrix-aware object lifted from `window.localStorage`. `(<mget <x> <y>)` establishes dependency of the enclosing formula on property `y` of `x`. A so-called *observer* (discussed below) automatically propagates freshly computed values of `class` to the actual DOM.
                       
 *Input* cells are assigned new values by conventional imperative code, usually in an event handler.
 ````cljs
 (input {:class "toggle" ::tag/type "checkbox"
-        :checked (c? (md-get todo :completed))
-        :onclick #(md-reset! todo :completed (not (md-get todo :completed)))}) ;; <-- triggering the dataflow
+        :checked (c? (<mget todo :completed))
+        :onclick #(mswap! todo :completed not)}) ;; <-- mswap!> triggers the dataflow
 ````
-`md-reset!` is the dataflow "writer" that mirrors `md-get`. It causes all direct or indirect dependents to recalculate. Note also the `checked` attribute, another example of a property following the `completed` property of our todo.
+`mswap!>` is the dataflow "writer" that mirrors `<mget`. It causes all direct or indirect dependents to recalculate. Note also the `checked` attribute, another property following the `completed` property of our todo.
 
-Why the "input" characterization? It cannot be rules all the way down. These cells are the inputs into the dataflow from outside imperative code. The diagram below is of a *directed acyclic graph* that can help imagine the flow that arises when input cells change and their new values are then consumed by dependent formulaic cells when their recomputation is triggered. In the diagram below, cells 7, 5, and 3 would be the input cells.
+Why the "input" characterization? It cannot be rules all the way down. These cells are the inputs into the dataflow from outside imperative code. The diagram below is of a *directed acyclic graph* that can help us imagine the flow that arises when input cells change and their new values are then consumed by dependent formulaic cells when their recomputation is triggered. In the diagram below, cells 7, 5, and 3 would be the input cells.
 
-![DAG graphic](https://github.com/kennytilton/todoFRP/blob/matrixjs/todo/MatrixCLJS/resources/Directed_acyclic_graph.png) 
+![DAG graphic](https://github.com/kennytilton/tag/blob/master/cljs/resources/Directed_acyclic_graph.png) 
 
 The dataflow engine propagates each new input value by recursively recomputing dependent formulaic cells in a [glitch](https://en.wikipedia.org/wiki/Reactive_programming#Glitches)-free cascade. We get useful behavior out of this cascading calculation via "on change" callbacks. We name these callbacks "observers" (not to be confused with [RxJS](http://reactivex.io/rxjs/) or [MobX](https://github.com/mobxjs/mobx/blob/master/README.md) *observables*). Much simplified:
 ````cljs
@@ -92,13 +92,13 @@ Speaking of (transparent) code, let us look at some more code to make the above 
 
 ### Matrix Concrete: Sample Code
 
-The view from 30k is nice but unsatisfying; I for one do not grasp a software library until I see it in the wild. The source code of this repository includes three heavily-annotated application source files: 
+The view from 30k is nice but unsatisfying; I for one do not grasp a software library until I see it in the wild. The source code of this repository includes three heavily-annotated application source files (or if you are like us skip down to "Matrix Highlights" to see if you have any interest): 
 
 * Two belong to the TodoMVC implementation: [todomx/todo.cljs](https://github.com/kennytilton/todoFRP/blob/matrixjs/todo/MatrixCLJS/src/todomx/todo.cljs) covers how we load to-dos from `localStorage` into the application matrix so the view can track them reactively, [todomx/matrix.cljs](https://github.com/kennytilton/todoFRP/blob/matrixjs/todo/MatrixCLJS/src/todomx/matrix.cljs) covers the app itself, predominantly the view.
 * The third annotated source is [todomx/gentle-intro.cljs](https://github.com/kennytilton/todoFRP/blob/matrixjs/todo/MatrixCLJS/src/example/gentle_intro.cljs), a zero-to-sixty progression of working examples starting with a basic reactive Cell and ending with point updates to the DOM in reaction to a change in the title of a to-do.
 * Finally, [todomx/startwatch.cljs](https://github.com/kennytilton/todoFRP/blob/matrixjs/todo/MatrixCLJS/src/todomx/startwatch.cljs) demonstrates a fun capability in which formulaic Cells close over atoms in which they maintain state across rule invocations to support semantics derived from the *stream* of values they encounter. Think `RxJS Lite`. The moral here is that streams are emergent properties arising naturally from the values sampled by formulaic Cells; there is no need to construct or maintain them explicitly.
 
-Check those out to see how the ideas of MatrixCLJS play out in working code. Or, if surfing code seems too much like work, here are the highlights.
+Check those out to see how the ideas of Matrix play out in working code. Or, if surfing code seems too much like work, here are the highlights.
 
 ### Matrix Highlights
 These takeaways from the annotated source all speak to the programmer experience (including getting optimal DOM manipulation for free).
