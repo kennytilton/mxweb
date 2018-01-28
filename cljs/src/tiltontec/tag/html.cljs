@@ -13,7 +13,7 @@
      :as md]
 
     [tiltontec.tag.style
-     :refer [style-string ] :as tagcss]
+     :refer [style-string] :as tagcss]
 
     [goog.dom :as dom]
     [goog.html.SafeHtml :as safe]
@@ -65,7 +65,7 @@
                             (when-let [v (md-get mx k)]
                               [(name k) (case k
                                           :style (tagcss/style-string v)
-                                          :class (if (sequential? v)
+                                          :class (if (coll? v)
                                                    (str/join " " v)
                                                    v)
                                           v)])))]
@@ -86,17 +86,12 @@
            (pln :tag-dom-create dbg (tagfo me)))
          ;;(pln :domcre-attrs (:attr-keys @me) (tag-attrs me))
          (let [dom (apply dom/createDom (md-get me :tag)
-                (tag-attrs me)
-                (concat                                     ;; to-do: need this?
-                  (map #(tag-dom-create % dbg) (md-get me :kids))
-                  (when-let [c (md-get me :content)]
-                    [(tag-dom-create c)])))]
-           #_ (when (:mdl @me)
-             (swap! me assoc :mdl false)
+                          (tag-attrs me)
+                          (concat                           ;; to-do: need this?
+                            (map #(tag-dom-create % dbg) (md-get me :kids))
+                            (when-let [c (md-get me :content)]
+                              [(tag-dom-create c)])))]
 
-             (when (.-componentHandler js/window)
-               (pln :Upgrading!!!!!!! (:id @me)(:mdl @me))
-               (.upgradeElement js/componentHandler dom)))
            dom)))))
 
 (def +true-html+ {::type "type"})
@@ -113,40 +108,40 @@
     ;; oldv unbound means initial build and this incremental add/remove
     ;; is needed only when kids change post initial creation
     ;;(println :obstagkids!!!!! (tagfo me))
-    (do ;; p ::observe-kids
-       (let [pdom (tag-dom me)
-          lost (clojure.set/difference (set oldv) (set newv))
-          gained (clojure.set/difference (set newv) (set oldv))]
+    (do                                                     ;; p ::observe-kids
+      (let [pdom (tag-dom me)
+            lost (clojure.set/difference (set oldv) (set newv))
+            gained (clojure.set/difference (set newv) (set oldv))]
 
-      (cond
-        (empty? gained)
-        ;; just lose the lost
-        (doseq [oldk lost]
-          (.removeChild pdom (tag-dom oldk))
-          (when-not (string? oldk)
-            ;;(println :obstagkids-dropping!!!!! (tagfo oldk))
-            (not-to-be oldk)))
+        (cond
+          (empty? gained)
+          ;; just lose the lost
+          (doseq [oldk lost]
+            (.removeChild pdom (tag-dom oldk))
+            (when-not (string? oldk)
+              (println :obs-tag-kids-dropping (tagfo oldk))
+              (not-to-be oldk)))
 
-        :default (let [frag (.createDocumentFragment js/document)]
-                   ;; GC lost from matrix;
-                   ;; move retained kids from pdom into fragment,
-                   ;; add all new kids to fragment, and do so preserving
-                   ;; order dictated by newk:
+          :default (let [frag (.createDocumentFragment js/document)]
+                     ;; GC lost from matrix;
+                     ;; move retained kids from pdom into fragment,
+                     ;; add all new kids to fragment, and do so preserving
+                     ;; order dictated by newk:
 
-                   (doseq [oldk lost]
-                     (when-not (string? oldk)
-                       ;; no need to remove dom, all children replaced below.
-                       (not-to-be oldk)))
+                     (doseq [oldk lost]
+                       (when-not (string? oldk)
+                         ;; no need to remove dom, all children replaced below.
+                         (not-to-be oldk)))
 
-                   (doseq [newk newv]
-                     (dom/appendChild frag
-                                      (if (some #{newk} oldv)
-                                        (.removeChild pdom (tag-dom newk))
-                                        (do (println :dom-hit-newkid!!!! (tagfo newk))
-                                            (tag-dom-create newk)))))
+                     (doseq [newk newv]
+                       (dom/appendChild frag
+                         (if (some #{newk} oldv)
+                           (.removeChild pdom (tag-dom newk))
+                           (do (println :obs-tag-kids-building-new-dom (tagfo newk))
+                               (tag-dom-create newk)))))
 
-                   (dom/removeChildren pdom)
-                   (dom/appendChild pdom frag)))))))
+                     (dom/removeChildren pdom)
+                     (dom/appendChild pdom frag)))))))
 
 (def +inline-css+ (set [:display]))
 
@@ -163,16 +158,16 @@
         (do
           ;;(pln :dom-hit-attr!!!! (tagfo me) slot newv oldv)
           (case slot
-              :style (set! (.-style dom) (style-string newv))
+            :style (set! (.-style dom) (style-string newv))
 
-              :hidden (set! (.-hidden dom) newv) ;; setAttribute seems not to work
-              :class (classlist/set dom (if (sequential? newv)
-                                          (str/join " " newv)
-                                          newv))
-              :checked (set! (.-checked dom) newv)
-              (do
-                (pln :obs-by-type-genset slot newv)
-                (.setAttribute dom (name slot) newv))))
+            :hidden (set! (.-hidden dom) newv)              ;; setAttribute seems not to work
+            :class (classlist/set dom (if (sequential? newv)
+                                        (str/join " " newv)
+                                        newv))
+            :checked (set! (.-checked dom) newv)
+            (do
+              (pln :obs-by-type-genset slot newv)
+              (.setAttribute dom (name slot) newv))))
 
         (+inline-css+ slot)
         (throw (js/Error. (str "tag obs sees oldskool style: " slot)))))))
@@ -186,13 +181,13 @@
         where :me? false :up? true))
 
 (defn mxu-find-tag
-"Search up the matrix from node 'where' looking for element with class"
+  "Search up the matrix from node 'where' looking for element with class"
   [where tag]
   (fget #(= (name tag) (md-get % :tag))
         where :me? false :up? true))
 
 (defn mxu-find-id
-"Search up the matrix from node 'where' looking for element with class"
+  "Search up the matrix from node 'where' looking for element with class"
   [where id]
   (fget #(= (name id) (md-get % :id))
         where :me? false :up? true))
