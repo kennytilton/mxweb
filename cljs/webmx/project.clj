@@ -1,4 +1,4 @@
-(defproject com.tiltontec/tag "0.1.0-SNAPSHOT"
+(defproject com.tiltontec/webmx "0.1.0-SNAPSHOT"
   :description "A Web un-framework for the Matrix (dataflow library)"
   :url "https://github.com/kennytilton"
   :dependencies [[org.clojure/clojure "1.8.0"]

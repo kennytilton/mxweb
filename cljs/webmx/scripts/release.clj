@@ -4,7 +4,7 @@
 
 (let [start (System/nanoTime)]
   (b/build "src"
-    {:output-to "release/tag.js"
+    {:output-to "release/webmx.js"
      :output-dir "release"
      :optimizations :advanced
      :verbose true})

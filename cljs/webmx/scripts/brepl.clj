@@ -4,7 +4,7 @@
   '[cljs.repl.browser :as browser])
 
 (b/build "src"
-  {:main 'tiltontec.tag.core
+  {:main 'tiltontec.webmx.core
    :output-to "out/todomx.js"
    :output-dir "out"
    :verbose true})
