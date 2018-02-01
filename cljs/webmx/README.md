@@ -1,8 +1,8 @@
-# Tag
+# WebMX
 
 ### Usage
 
-Your project.clj dependency: `[com.tiltontec/tag "0.1.0-SNAPSHOT"]`
+Add to your project.clj dependency: `[com.tiltontec/webmx "0.1.0-SNAPSHOT"]`
 
 To build locally, checkout the scripts directory. `scripts/build` to build once, `scripts/watch` to build continuously.
 
@@ -10,9 +10,9 @@ Check examples or source for the several module requires you will need.
 
 ### ...by TodoMVC Example
 
-Welcome to Tag, a sneaky-powerful Web framework as simple as its name.
+Welcome to WebMX, a sneaky-powerful Web framework as simple as its name.
 
-We explain Tag with a proof-of-concept implementation of the [TodoMVC Classic](https://github.com/tastejs/todomvc/blob/master/app-spec.md), the concept being...
+We explain WebMX with a proof-of-concept implementation of the [TodoMVC Classic](https://github.com/tastejs/todomvc/blob/master/app-spec.md), the concept being...
 
 > What happens if a sophisticated, generic reactive library supports every aspect of a web app, including the model, logical view, DOM manipulation, and object persistence?
 
