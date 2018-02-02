@@ -4,10 +4,10 @@
     [tiltontec.model.core :as md]
     [tiltontec.webmx.html :refer [tag-dom-create *webmx-trace*]]
     ;;[todomx.todomvc :as tmx]
-    [tiltontec.webmx.example.testing :as app]
+    ;;[tiltontec.webmx.example.testing :as app]
     ;;[tiltontec.webmx.example.todomvc :as todo]
     ;;[tiltontec.webmx.example.gentle-intro :as gi]
-    ;;[tiltontec.webmx.example.ticktock :as tt]
+    [tiltontec.webmx.example.ticktock :as app]
     ;;git commit [tiltontec.webmx.example.startwatch :as sw]
 
     [taoensso.tufte :as tufte :refer (defnp p profiled profile)]
