@@ -19,7 +19,7 @@
                      tag-dom-create
                      dom-tag tagfo tag-dom
                      dom-has-class dom-ancestor-by-tag]
-             :as tag]
+             :as webmx]
 
             [tiltontec.webmx.gen
              :refer-macros [section header h1 input footer p a span label ul li div button br]
@@ -176,7 +176,7 @@
 
     (input {:id        "toggle-all"
             :class     "toggle-all"
-            ::tag/type "checkbox"
+            ::webmx/type "checkbox"
             :checked   (c? (= (md-get (mx-par me) :action) :uncomplete))})
 
     (label {:for     "toggle-all"
@@ -197,7 +197,7 @@
     {:on? (c-in false)}
 
     (input {:id        "ae-autocheckbox"
-            ::tag/type "checkbox"
+            ::webmx/type "checkbox"
             :onchange #(let [on? (md-get me :on?)]
                          (event/preventDefault %)            ;; else browser messes with checked, which we handle
                          (println :ae-chkbox-onchange on? (.-value (.-target %)))

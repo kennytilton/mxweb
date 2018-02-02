@@ -26,7 +26,7 @@
 
     [taoensso.tufte :as tufte :refer-macros (defnp p profiled profile)]))
 
-(def ^:dynamic *tag-trace* false)
+(def ^:dynamic *webmx-trace* false)
 
 (defn tagfo [me]
   (if (string? me)
@@ -82,7 +82,7 @@
                     (dom/appendChild frag (tag-dom-create tag)))
                   frag)
      :default
-     (do (when-let [dbg (or dbg *tag-trace*)]
+     (do (when-let [dbg (or dbg *webmx-trace*)]
            (pln :tag-dom-create dbg (tagfo me)))
          ;;(pln :domcre-attrs (:attr-keys @me) (webmx-attrs me))
          (let [dom (apply dom/createDom (md-get me :tag)
@@ -148,7 +148,7 @@
 (defmethod observe-by-type [:tiltontec.webmx.html/tag] [slot me newv oldv _]
   (when (not= oldv unbound)
     (when-let [dom (tag-dom me)]
-      (when *tag-trace*
+      (when *webmx-trace*
         (pln :observing-tagtype (tagfo me) slot newv oldv))
 
       (cond

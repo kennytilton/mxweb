@@ -23,7 +23,7 @@
                      mxu-find-tag mxu-find-class
                      dom-tag tagfo tag-dom
                      dom-has-class dom-ancestor-by-tag]
-             :as tag]
+             :as webmx]
 
             [tiltontec.xhr
              :refer [make-xhr send-xhr send-unparsed-xhr xhr-send xhr-await xhr-status
@@ -73,7 +73,7 @@
        :editing   (c-in false)}
 
       (div {:class "view"}
-        (input {:class   "toggle" ::tag/type "checkbox"
+        (input {:class   "toggle" ::webmx/type "checkbox"
                 :checked (c? (not (nil? (td-completed todo))))
                 :onclick #(td-toggle-completed! todo)})
 
@@ -88,10 +88,10 @@
                                    edt-dom (dom/getElementByClass
                                              "edit" li-dom)]
                                (classlist/add li-dom "editing")
-                               (tag/input-editing-start edt-dom (td-title todo)))}
+                               (webmx/input-editing-start edt-dom (td-title todo)))}
                (td-title todo))
 
-        (input {::tag/type "date"
+        (input {::webmx/type "date"
                 :class     "due-by"
                 :value     (c?n (when-let [db (td-due-by todo)]
                                   (let [db$ (tmc/to-string (tmc/from-long db))]

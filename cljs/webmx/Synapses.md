@@ -1,6 +1,6 @@
 # Synapses
 
-[Just tossing in some random thoughts before dashing on to a write-up of Callback Purgatory, where we will in fact see a tremendous motivating example of Synapses. This write-up assumes the reader has read the [Matrix overview](https://github.com/kennytilton/tag/blob/master/cljs/README.md); we pick up here from a quick mention there of what we call *synapses*.]
+[Just tossing in some random thoughts before dashing on to a write-up of Callback Purgatory, where we will in fact see a tremendous motivating example of Synapses. This write-up assumes the reader has read the [Matrix overview](https://github.com/kennytilton/webmx/blob/master/cljs/README.md); we pick up here from a quick mention there of what we call *synapses*.]
 
 > syn·apse [sin-aps, si-naps] Physiology *noun* - A junction between two nerve cells, consisting of a minute gap across which impulses pass by diffusion of a neurotransmitter.
 

@@ -13,7 +13,7 @@
 
 (def +tag-sid+ (atom -1))
 
-(defn tag-init! []
+(defn webmx-init! []
   (reset! +tag-sid+ -1))
 
 (def tag-by-id (atom {}))

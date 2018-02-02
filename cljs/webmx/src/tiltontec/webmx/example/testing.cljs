@@ -65,7 +65,7 @@
 
      (div
        (input {:id       "subId"
-               :tag/type "checkbox"
+               :webmx/type "checkbox"
                :value    "subvalue"
                :checked  (c? (md-get me :subbing?))
                :onclick  #(let [tgt (evt-tag %)]
@@ -83,7 +83,7 @@
                                (assert xx)
                                (when (even? (md-get xx :clicks))
                                  ["back-cyan" "boulder"])))
-               :tag/type "text"
+               :webmx/type "text"
                :value    (c-in "#0ff")}))
 
      (textarea {:cols        40 :rows 5

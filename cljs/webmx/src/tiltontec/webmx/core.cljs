@@ -2,10 +2,10 @@
   (:require
     [goog.dom :as dom]
     [tiltontec.model.core :as md]
-    [tiltontec.webmx.html :refer [tag-dom-create *tag-trace*]]
+    [tiltontec.webmx.html :refer [tag-dom-create *webmx-trace*]]
     ;;[todomx.todomvc :as tmx]
-    ;;[tiltontec.webmx.example.testing :as test]
-    [tiltontec.webmx.example.todomvc :as todo]
+    [tiltontec.webmx.example.testing :as app]
+    ;;[tiltontec.webmx.example.todomvc :as todo]
     ;;[tiltontec.webmx.example.gentle-intro :as gi]
     ;;[tiltontec.webmx.example.ticktock :as tt]
     ;;git commit [tiltontec.webmx.example.startwatch :as sw]
@@ -21,9 +21,9 @@
 (let [root (dom/getElement "tagroot")
 
       ;; switch next to, eg, (gi/matrix-build!) to explore the gentle intro
-      app-matrix (todo/matrix-build!)
+      app-matrix (app/matrix-build!)
 
-      app-dom (binding [*tag-trace* nil]                ;; <-- set to nil if console too noisy
+      app-dom (binding [*webmx-trace* nil]                ;; <-- set to nil if console too noisy
                 (tag-dom-create
                   (md/md-get app-matrix :mx-dom)))
 
