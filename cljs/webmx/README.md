@@ -41,7 +41,7 @@ Now follow these critical elements of the setup instructions from the `mies` tem
 >
 >    ./scripts/watch
 
-If you have not already done so, open `Tag/index.html` in Chrome, FireFox, Opera or Safari on Mac OS X. You should see the same application as the live demo above.
+If you have not already done so, open `webmx/index.html` in Chrome, FireFox, Opera or Safari on Mac OS X. You should see the same application as the live demo above.
 
 ## Reactive programming with Matrix
 
@@ -57,7 +57,7 @@ Above we see the CSS `class` tracking the completed property of the lexically cl
                       
 *Input* cells are assigned new values by conventional imperative code, usually in an event handler.
 ````cljs
-(input {:class "toggle" ::tag/type "checkbox"
+(input {:class "toggle" ::webmx/type "checkbox"
         :checked (c? (<mget todo :completed))
         :onclick #(mswap! todo :completed not)}) ;; <-- mswap!> triggers the dataflow
 ````
@@ -138,8 +138,6 @@ MatrixCLJS was developed for people trying to building applications, and to us t
 The next steps for MatrixCLJS are:
 * Synapses [DONE]: Check out this [cursory treatment](https://github.com/kennytilton/todoFRP/blob/matrixjs/todo/MatrixCLJS/Synapses.md) of synapses or, again, see the heavily annotated [todomx/startwatch.cljs](https://github.com/kennytilton/todoFRP/blob/matrixjs/todo/MatrixCLJS/src/todomx/startwatch.cljs) and the [synapse tests](https://github.com/kennytilton/todoFRP/blob/matrixjs/todo/MatrixCLJS/test/tiltontec/cell/synapse_test.cljc) to see how a free-floating or "anonymous" Cell can serve usefully as an intermediary (hence "synapse") between a host Cell and its dependencies.
 * Eliminate Callback Hell [DONE]: Track [this write-up](https://github.com/kennytilton/xhr/blob/master/cljs/XHR.md) to see how simple property-to-property dataflow greatly ameliorates the coding of elaborate remote request processing. Spoiler alert: we now have Callback Purgatory, no longer in Hell but some work remains when using the new synapse-enabled *XHR* module to reach remote request heaven. 
-* `Tag 2.0`: this HTML library is quite incomplete and rough. It needs finishing, integration with the XHR module, and a few widgets would not hurt. A remote datagrid might be first.
-* [Material Design](https://getmdl.io): not sure if this needs to be part of the framework, but we are suckers for eye candy.
 * Documentation: [MDN](https://developer.mozilla.org/en-US/) by design imperative will be the doc for `Tag`, but the Matrix dataflow substrate needs doc.
 
 We also must decide whether to work first on the ClojureScript version or the Javascript version. Send your votes and any corrections, comments, or questions to kentilton at gmail etc etc.
