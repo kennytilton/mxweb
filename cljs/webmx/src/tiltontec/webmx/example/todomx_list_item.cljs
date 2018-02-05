@@ -136,7 +136,8 @@
                               (println :aex-aes!!! (td-title todo) (:status aes))
                               (when (= 200 (:status aes))
                                 "display:block")))
-                          "display:none"))}
+                          "display:none"))
+           :onclick #(js/alert "Feature not yet implemented")}
 
           {:ae (c?+ [:obs (fn-obs
                             (when-not (or (= old unbound) (nil? old))

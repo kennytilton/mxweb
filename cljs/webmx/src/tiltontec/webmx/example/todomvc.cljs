@@ -91,6 +91,7 @@
                        ["/completed" :Completed]])
             {:default     :ignore
              :on-navigate (fn [route params query]
+                            (prn :bam-route route)
                             (md-reset! @matrix :route (name route)))}))
 
 ;;; --- the landing page -------------------------------

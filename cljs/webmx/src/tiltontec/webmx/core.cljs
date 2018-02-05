@@ -1,17 +1,25 @@
 (ns tiltontec.webmx.core
   (:require
-    [goog.dom :as dom]
-    [tiltontec.model.core :as md]
-    [tiltontec.webmx.html :refer [tag-dom-create *webmx-trace*]]
-    ;;[todomx.todomvc :as tmx]
-    ;;[tiltontec.webmx.example.testing :as app]
-    ;;[tiltontec.webmx.example.todomvc :as todo]
-    ;;[tiltontec.webmx.example.gentle-intro :as gi]
-    [tiltontec.webmx.example.ticktock :as app]
-    ;;git commit [tiltontec.webmx.example.startwatch :as sw]
+    [clojure.string :as str]
 
-    [taoensso.tufte :as tufte :refer (defnp p profiled profile)]
-    [cljs-time.coerce :refer [from-long to-string] :as tmc])
+    [taoensso.tufte :as tufte :refer [defnp p profiled profile]]
+    [cljs-time.coerce :refer [from-long to-string] :as tmc]
+
+
+    [tiltontec.model.core :as md]
+
+    [goog.dom :as dom]
+    [tiltontec.webmx.html :refer [tag-dom-create *webmx-trace*]]
+
+    [tiltontec.webmx.mxintro.rxtrak :as app]
+    ;;[tiltontec.webmx.example.gloss :as app]
+    ;;[tiltontec.webmx.example.testing :as app]
+    ;;[tiltontec.webmx.example.todomvc :as app]
+    ;;[tiltontec.webmx.example.gentle-intro :as app]
+    ;;[tiltontec.webmx.example.ticktock :as app]
+    ;;[tiltontec.webmx.example.startwatch :as app]
+
+    )
   (:import [goog.date UtcDateTime]))
 
 (enable-console-print!)
@@ -20,24 +28,21 @@
 
 (let [root (dom/getElement "tagroot")
 
-      ;; switch next to, eg, (gi/matrix-build!) to explore the gentle intro
       app-matrix (app/matrix-build!)
 
-      app-dom (binding [*webmx-trace* nil]                ;; <-- set to nil if console too noisy
+      app-dom (binding [*webmx-trace* nil]                  ;; <-- set to nil if console too noisy
                 (tag-dom-create
                   (md/md-get app-matrix :mx-dom)))
 
-      n (.getTime (js/Date.))
-      ;; tom (some-> n UtcDateTime.fromTimestamp)
-      ;;   (some-> millis UtcDateTime.fromTimestamp))
+      start-ms (.getTime (js/Date.))
+      start$ (tmc/to-string (tmc/from-long start-ms))]
 
-      tom2  (tmc/from-long n)]
+  (prn :start!!!! start-ms start$)
 
-  (prn :now!!!! n :tom2 tom2 (tmc/to-string tom2))
-
-  (prn :app-dom!!!! (str app-dom))
+  ;;(prn :app-dom!!!! (str app-dom))
 
   (set! (.-innerHTML root) nil)
   (dom/appendChild root app-dom)
   (when-let [route-starter (md/md-get app-matrix :router-starter)]
+    (prn :starting-router)
     (route-starter)))
