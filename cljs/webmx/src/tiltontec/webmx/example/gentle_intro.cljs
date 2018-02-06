@@ -76,8 +76,8 @@
     [tiltontec.cell.base :refer [unbound ia-type *within-integrity* c-value]]
     [tiltontec.cell.evaluate :refer [c-get]]
     [tiltontec.cell.core
-     :refer-macros [c? c?+ c?n c?+n c?once fn-obs]
-     :refer [c-in c-reset!]]
+     :refer-macros [cF cF+ cFn cF+n cFonce fn-obs]
+     :refer [cI c-reset!]]
     [tiltontec.cell.observer :refer-macros [fn-obs]]
     [tiltontec.model.core
      :refer [matrix mx-par md-get md-reset! mxi-find  kid-values-kids] :as md]
@@ -112,10 +112,10 @@
 
   (pln "----- Part A: An input cell and its accessors ---------------------------------")
   ;
-  ; We simply make a standalone input cell using 'c-in' (a convenience wrapper for 'make-cell')
+  ; We simply make a standalone input cell using 'cI' (a convenience wrapper for 'make-cell')
   ; to hold a vector of simple string to-dos, then get and reset!
   ;
-  (let [todos (c-in ["wash car"
+  (let [todos (cI ["wash car"
                      "mow lawn"])]
 
     ; Next we access the wrapped value via 'c-get', a bit of exposed wiring we will lose
@@ -136,7 +136,7 @@
   (pln "----- Part B: observers let the matrix have useful effect -------------------")
 
   (tag/io-clear-storage)
-  (let [todos (c-in nil
+  (let [todos (cI nil
                     ; :obs is short for observer. All observers take the same parameters.
                     ; We demo the matrix operating on the non-matrix world (here, localStorage)
                     ; via an observer:
@@ -151,8 +151,8 @@
     ;
     ; We can also override the default observer for the whole Matrix engine.
 
-    (println "Storage before c-in reset says:" (tag/io-read gentle-intro-ls-key))
-    ; console: Storage before c-in reset says: nil
+    (println "Storage before cI reset says:" (tag/io-read gentle-intro-ls-key))
+    ; console: Storage before cI reset says: nil
 
     (pln "Storing a couple of todos...")
     (c-reset! todos ["wash dog" "learn Mandarin"])
@@ -176,7 +176,7 @@
   ; ----- A chain of formulaic cells ------------------------------------------
 
   (let [;; our input cell again, starting empty
-        todos (c-in [])
+        todos (cI [])
 
         ;; some helper fns to hide the setters
         add-todo (fn [todo]
@@ -191,18 +191,18 @@
         ;; we can tell who is recalculating) and observers so we can see the results.
         ;; The 'fn-obs' macro provides the parameters slot, me, new, old, and c for cell:
 
-        todo-count (c?+ [:obs (fn-obs
+        todo-count (cF+ [:obs (fn-obs
                                 ;; we'll have some fun and foreshadow the requisite TodoMVC HTML;
                                 (pln "HTML soon:" (pp/cl-format nil "<strong>~a</strong>  item~:P remaining" new)))]
                         (pln "rule: counting todos!")
                         (count (c-get todos)))
 
-        todos-empty (c?+ [:obs (fn-obs
+        todos-empty (cF+ [:obs (fn-obs
                                  (pln "obs: empty:" new))]
                          (pln "rule: testing empty!")
                          (zero? (c-get todo-count)))
 
-        html-hidden (c?+ [:obs (fn-obs
+        html-hidden (cF+ [:obs (fn-obs
                                  (pln "obs: hidden:" new))]
                          (pln "rule: testing if dom should be hidden")
                          (c-get todos-empty))]
@@ -265,8 +265,8 @@
                 :created (now)
 
                 ;; now wrap mutable slots as Cells...
-                :title (c-in "Sell car")
-                :versions (c?+ [:obs (fn-obs (pln :version new (md-get me :title)))]
+                :title (cI "Sell car")
+                :versions (cF+ [:obs (fn-obs (pln :version new (md-get me :title)))]
                                ; we count the revisions of a todo,
                                ; a bit of silliness but I cannot think of a
                                ; formula for a todo (but note the availability
@@ -275,8 +275,8 @@
                                  (inc (if (= cache unbound) 0 cache))))
 
                 ; these next two will be controlled by the user in the real TodoMVC
-                :completed (c-in false)
-                :deleted (c-in nil))]
+                :completed (cI false)
+                :deleted (cI nil))]
 
     ; console: (:version 1 "Sell car")
     ; What triggered that? md/make brings matrix models to life ASAP by evaluating all formulaic cells
@@ -313,8 +313,8 @@
 
   (let [to-do (md/make
                 :type ::todo
-                :title (c-in "Sell car")
-                :completed (c-in true))
+                :title (cI "Sell car")
+                :completed (cI true))
 
         ; a bit of syntactic sugar to hide the md-get wiring:
         completed #(md-get % :completed)
@@ -337,11 +337,11 @@
                             ; the next two properties, and the console shows those changes
                             ; being propagated to the DOM attributes (and no DOM added or removed).
 
-                            :style   (c? (str/join ";" ["background-color:white"
+                            :style   (cF (str/join ";" ["background-color:white"
                                                         (str "color:"
                                                              (if (completed to-do) "red" "green"))]))
 
-                            :content (c? (str (title to-do)
+                            :content (cF (str (title to-do)
                                               (when (completed to-do)
                                                 " (done)")))}))])
 

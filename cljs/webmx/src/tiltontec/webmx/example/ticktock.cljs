@@ -1,6 +1,6 @@
 (ns tiltontec.webmx.example.ticktock
   (:require [clojure.string :as str]
-            [tiltontec.cell.core :refer-macros [c? c?once] :refer [c-in]]
+            [tiltontec.cell.core :refer-macros [cF cFonce] :refer [cI]]
             [tiltontec.model.core
              :refer [matrix mx-par md-get <mget mset!> md-reset! mxi-find mxu-find-name] :as md]
             [tiltontec.webmx.gen :refer [evt-tag target-value] :refer-macros [h1 input div span]]))
@@ -10,7 +10,7 @@
 
 (defn matrix-build! []
   (md/make ::ticktock
-    :mx-dom (c?once (md/with-par me
+    :mx-dom (cFonce (md/with-par me
                       [(div {}
                          (h1 {} "Hello, world. 'Tis now....")
                          (clock)
@@ -31,12 +31,12 @@
 
 (defn clock []
   (div {:class   "example-clock"
-      :style   (c? (str "color:" (<mget (mxu-find-name me :timecolor) :value)))
+      :style   (cF (str "color:" (<mget (mxu-find-name me :timecolor) :value)))
 
-      :tick (c-in false :ephemeral? true)
-      :ticker (c? (js/setInterval #(mset!> me :tick true) 1000))
+      :tick (cI false :ephemeral? true)
+      :ticker (cF (js/setInterval #(mset!> me :tick true) 1000))
 
-      :content (c? (if (<mget me :tick)
+      :content (cF (if (<mget me :tick)
                      (-> (js/Date.)
                          .toTimeString
                          (str/split " ")
@@ -48,6 +48,6 @@
     "Time color: "
     (input {:name     :timecolor
             :tag/type "text"
-            :value    (c-in "#0ff")
+            :value    (cI "#0ff")
             :onchange #(mset!> (evt-tag %)
                                   :value (target-value %))})))

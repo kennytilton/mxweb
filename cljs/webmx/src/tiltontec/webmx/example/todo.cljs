@@ -4,7 +4,7 @@
     [taoensso.tufte :as tufte :refer-macros (defnp p profiled profile)]
     [tiltontec.cell.base :refer [unbound ia-type]]
     [tiltontec.cell.core
-     :refer-macros [c? c?n] :refer [c-in]]
+     :refer-macros [cF cFn] :refer [cI]]
     [tiltontec.cell.observer :refer [observe-by-type]]
     [tiltontec.model.core :as md :refer [make md-get md-reset!]]
     [tiltontec.util.core :as util :refer [pln now map-to-json json-to-map uuidv4]]
@@ -26,8 +26,8 @@
 
 (defn todo-list []
   (md/make ::todo-list
-    :items-raw (c?n (load-all))
-    :items (c? (p :items (doall (remove td-deleted (md-get me :items-raw)))))
+    :items-raw (cFn (load-all))
+    :items (cF (p :items (doall (remove td-deleted (md-get me :items-raw)))))
 
     ;; the TodoMVC challenge has a requirement that routes "go thru the
     ;; the model". (Some of us just toggled the hidden attribute appropriately
@@ -35,8 +35,8 @@
     ;; examine the route and ask the model for different subsets using different
     ;; functions for each subset. For fun we used dedicated cells:
 
-    :items-completed (c? (p :completed (doall (filter td-completed (md-get me :items)))))
-    :items-active (c? (p :active (doall (remove td-completed (md-get me :items)))))
+    :items-completed (cF (p :completed (doall (filter td-completed (md-get me :items)))))
+    :items-active (cF (p :active (doall (remove td-completed (md-get me :items)))))
 
     ;; two DIVs want to hide if there are no to-dos, so we dedicate a cell
     ;; to that semantic. Yes, this could be a function, but then the Cell
@@ -45,7 +45,7 @@
     ;; the count goes to or from zero, so we avoid recomputing two "hiddens"
     ;; unnecessarily when the count changes, say, from 2 to 3.
 
-    :empty? (c? (nil? (first (md-get me :items))))))
+    :empty? (cF (nil? (first (md-get me :items))))))
 
 (defn make-todo
   "Make a matrix incarnation of a todo on initial entry"
@@ -57,10 +57,10 @@
                      :created   (now)
 
                      ;; now wrap mutable slots as Cells...
-                     :title     (c-in (:title islots))
-                     :completed (c-in false)
-                     :due-by    (c-in (+ (now) (* 4 24 60 60 1000)))
-                     :deleted   (c-in nil)})
+                     :title     (cI (:title islots))
+                     :completed (cI false)
+                     :due-by    (cI (+ (now) (* 4 24 60 60 1000)))
+                     :deleted   (cI nil)})
         todo (apply md/make (flatten (into [] net-slots)))]
 
     (td-upsert todo)
@@ -140,11 +140,11 @@
                  (merge islots
                         {:type      ::todo
                          ;; we wrap in cells those reloaded slots we might mutate...
-                         :title     (c-in (:title islots))
-                         :completed (c-in (:completed islots false))
-                         :due-by    (c-in (:due-by islots))
+                         :title     (cI (:title islots))
+                         :completed (cI (:completed islots false))
+                         :due-by    (cI (:due-by islots))
                          :deleted   (or (:deleted islots)
-                                        (c-in nil))})))))
+                                        (cI nil))})))))
 
 ;;; ---- uodating in localStorage ----------------------
 

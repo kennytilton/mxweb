@@ -11,7 +11,7 @@
     [goog.dom :as dom]
     [tiltontec.webmx.html :refer [tag-dom-create *webmx-trace*]]
 
-    [tiltontec.webmx.mxintro.rxtrak :as app]
+    [tiltontec.webmx.mxintro.rxtrak :as app] ;; Intro app for Lisp-NYC, 2018
     ;;[tiltontec.webmx.example.gloss :as app]
     ;;[tiltontec.webmx.example.testing :as app]
     ;;[tiltontec.webmx.example.todomvc :as app]

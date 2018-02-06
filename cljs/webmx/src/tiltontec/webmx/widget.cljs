@@ -2,7 +2,7 @@
   (:require
     [goog.events.Event :as event]
 
-    [tiltontec.cell.core :refer-macros [c? c?+ c?n c?+n c?once] :refer [c-in]]
+    [tiltontec.cell.core :refer-macros [cF cF+ cFn cF+n cFonce] :refer [cI]]
 
     [tiltontec.model.core
      :refer-macros [with-par]
@@ -19,15 +19,15 @@
   ([me id label-text initial-state attrs aux]
    (make-tag "div"
      (assoc attrs :id id)
-     (merge {:on? (c-in initial-state)}
+     (merge {:on? (cI initial-state)}
             aux)
-     (tiltontec.model.core/c?kids
+     (tiltontec.model.core/cFkids
        (input {:id                      (str id "box")
                :tiltontec.webmx.html/type "checkbox"
                :onchange                (fn [e]
                                           (event/preventDefault e) ;; else browser messes with checked, which we handle
                                           (mswap!> me :on? #(not %)))
-               :checked                 (c? (<mget (mx-par me) :on?))})
+               :checked                 (cF (<mget (mx-par me) :on?))})
 
        (when label-text
          (label {:for     (str id "box")

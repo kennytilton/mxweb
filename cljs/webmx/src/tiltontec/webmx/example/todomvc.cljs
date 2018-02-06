@@ -7,7 +7,7 @@
 
             [tiltontec.util.core :refer [pln xor now]]
             [tiltontec.cell.base :refer [unbound ia-type *within-integrity* *defer-changes*]]
-            [tiltontec.cell.core :refer-macros [c? c?+ c?n c?+n c?once] :refer [c-in]]
+            [tiltontec.cell.core :refer-macros [cF cF+ cFn cF+n cFonce] :refer [cI]]
             [tiltontec.cell.observer :refer-macros [fn-obs]]
 
 
@@ -69,15 +69,15 @@
 
 
                    ;; load all to-dos into an observable list....
-                   :todos (c?once (tiltontec.webmx.example.todo/todo-list))
+                   :todos (cF1 (tiltontec.webmx.example.todo/todo-list))
 
                    ;; build the matrix dom once. From here on, all DOM changes are
                    ;; made incrementally by Tag library observers...
-                   :mx-dom (c?once (md/with-par me
-                                                (landing-page)))
+                   :mx-dom (cF1 (md/with-par me
+                                  (landing-page)))
 
                    ;; the spec wants the route persisted for some reason....
-                   :route (c?+n [:obs (fn-obs               ;; fn-obs convenience macro provides handy local vars....
+                   :route (cF+n [:obs (fn-obs               ;; fn-obs convenience macro provides handy local vars....
                                         (when-not (= unbound old)
                                           (io-upsert "todo-matrixcljs.route" new)))]
                                 (or (io-read "todo-matrixcljs.route") "All"))
@@ -144,7 +144,7 @@
 
 (defn todo-list-items []
   (section {:class  "main"
-            :hidden (c? (md-get (mx-todos me) :empty?))}
+            :hidden (cF (md-get (mx-todos me) :empty?))}
            (toggle-all)
            (ul {:class "todo-list"}
 
@@ -152,8 +152,8 @@
                ;; for avoiding re-genning a complete list of kids just to add or remove a few.
                ;; overkill for short TodoMVC to-do lists, but worth showing.
 
-               {:selections  (c-in nil)
-                :kid-values  (c? (when-let [rte (mx-route me)]
+               {:selections  (cI nil)
+                :kid-values  (cF (when-let [rte (mx-route me)]
                                    (sort-by td-created
                                             (md-get (mx-todos me)
                                                     (case rte
@@ -172,13 +172,13 @@
 (defn toggle-all []
   (div {} {;; 'action' is an ad hoc bit of intermediate state that will be used to decide the
            ;; input HTML checked attribute and will also guide the label onclick handler.
-           :action (c? (if (every? td-completed (mx-todo-items me))
+           :action (cF (if (every? td-completed (mx-todo-items me))
                          :uncomplete :complete))}
 
     (input {:id        "toggle-all"
             :class     "toggle-all"
             ::webmx/type "checkbox"
-            :checked   (c? (= (md-get (mx-par me) :action) :uncomplete))})
+            :checked   (cF (= (md-get (mx-par me) :action) :uncomplete))})
 
     (label {:for     "toggle-all"
             ;; a bit ugly: handler below is not in kids rule of LABEL, so 'me' is the DIV.
@@ -195,7 +195,7 @@
         :class "ae-autocheck"
         :onchange #(println :divchg!!! %)
         :style "margin:24px"}
-    {:on? (c-in false)}
+    {:on? (cI false)}
 
     (input {:id        "ae-autocheckbox"
             ::webmx/type "checkbox"
@@ -203,7 +203,7 @@
                          (event/preventDefault %)            ;; else browser messes with checked, which we handle
                          (println :ae-chkbox-onchange on? (.-value (.-target %)))
                          (md-reset! me :on? (not on?)))
-            :checked   (c? (println :checked????? (md-get (mx-par me) :on?))
+            :checked   (cF (println :checked????? (md-get (mx-par me) :on?))
                            (md-get (mx-par me) :on?))})
 
     (label {:for     "ae-autocheckbox"
@@ -220,12 +220,12 @@
 (defn std-clock []
   (let [steps (atom 0)]
     (div {:class   "std-clock"
-          :content (c? (subs (.toDateString
+          :content (cF (subs (.toDateString
                                (js/Date.
                                  (md-get me :clock)))
                              4))}
-      {:clock  (c-in (now))
-       :ticker (c?once (js/setInterval
+      {:clock  (cI (now))
+       :ticker (cFonce (js/setInterval
                          #(when (pos? (swap! steps dec))
                             (let [time-step (* 6 3600 1000)
                                   w (md-get me :clock)]
@@ -236,10 +236,10 @@
 
 (defn dashboard-footer []
   (footer {:class  "footer"
-           :hidden (c? (md-get (mx-todos me) :empty?))}
+           :hidden (cF (md-get (mx-todos me) :empty?))}
 
           (span {:class   "todo-count"
-                 :content (c? (pp/cl-format nil "<strong>~a</strong>  item~:P remaining"
+                 :content (cF (pp/cl-format nil "<strong>~a</strong>  item~:P remaining"
                                             (count (remove td-completed (mx-todo-items me)))))})
 
 
@@ -250,12 +250,12 @@
                                    ["Completed", "#/completed"]]]
                 (li {} (a {:href     route
                            :selector label
-                           :class    (c? (when (= (:selector @me) (mx-route me))
+                           :class    (cF (when (= (:selector @me) (mx-route me))
                                            "selected"))}
                           label))))
 
           (button {:class   "clear-completed"
-                   :hidden  (c? (empty? (md-get (mx-todos me) :items-completed)))
+                   :hidden  (cF (empty? (md-get (mx-todos me) :items-completed)))
                    :onclick #(doseq [td (filter td-completed (mx-todo-items))]
                                (td-delete! td))}
                   "Clear completed")))

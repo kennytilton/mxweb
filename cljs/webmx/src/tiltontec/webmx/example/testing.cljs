@@ -3,7 +3,7 @@
   (:require [clojure.string :as str]
             [cljs.core.async :refer [<!]]
             [tiltontec.util.core :refer [now]]
-            [tiltontec.cell.core :refer-macros [c? c?once] :refer [c-in]]
+            [tiltontec.cell.core :refer-macros [cF cFonce] :refer [cI]]
             [tiltontec.cell.synapse
              :refer-macros [with-synapse]
              :refer []]
@@ -42,49 +42,49 @@
                        (println :xx-click!! % (:id @me) (:clicks @me))
                        (md-reset! me :clicks (inc (:clicks @me)))))}
 
-     {:clicks (c-in 0)}
+     {:clicks (cI 0)}
 
      (str "Conten ?! Content rule" (md-get (mx-par me) :clicks) "|Ooops")
 
-     (span {:style  (c? (make-css-inline me
+     (span {:style  (cF (make-css-inline me
                           :color "blue"
                           :background-color "red"
-                          :padding (c? (let [c (md-get (mx-par (:tag @me)) :clicks)]
+                          :padding (cF (let [c (md-get (mx-par (:tag @me)) :clicks)]
                                          (str (* c 6) "px")))))
-            :hidden (c? (odd? (md-get (mx-par me) :clicks)))}
-           {:content (c? (str "Himom style ?! " (md-get (mx-par me) :clicks)))})
+            :hidden (cF (odd? (md-get (mx-par me) :clicks)))}
+           {:content (cF (str "Himom style ?! " (md-get (mx-par me) :clicks)))})
 
      (span {:style "color:red;background-color:#eee;padding:10px"}
-           {:content (c? (str "Himom style string! " (md-get (mx-par me) :clicks)))})
+           {:content (cF (str "Himom style string! " (md-get (mx-par me) :clicks)))})
 
-     (span {:style (c? (let [c (md-get (mx-par me) :clicks)]
+     (span {:style (cF (let [c (md-get (mx-par me) :clicks)]
                          {:color            "blue"
                           :background-color "yellow"
                           :padding          (str (* c 6) "px")}))}
-           {:content (c? (str "Himom style ?! " (md-get (mx-par me) :clicks)))})
+           {:content (cF (str "Himom style ?! " (md-get (mx-par me) :clicks)))})
 
      (div
        (input {:id       "subId"
                :webmx/type "checkbox"
                :value    "subvalue"
-               :checked  (c? (md-get me :subbing?))
+               :checked  (cF (md-get me :subbing?))
                :onclick  #(let [tgt (evt-tag %)]
                             (.stopPropagation %)
                             (md-reset! (evt-tag %) :subbing?
                               (not (md-get me :subbing?))))}
-              {:subbing? (c-in true)})
+              {:subbing? (cI true)})
        (label {:for "subId"}
               "Sub label OK?"))
 
      (div {:class "color-input" :style "margin-top:24px"}
        "Time color: "
        (input {:name     :timecolor
-               :class    (c? (let [xx (fget #(= "xx" (md-get % :id)) me)]
+               :class    (cF (let [xx (fget #(= "xx" (md-get % :id)) me)]
                                (assert xx)
                                (when (even? (md-get xx :clicks))
                                  ["back-cyan" "boulder"])))
                :webmx/type "text"
-               :value    (c-in "#0ff")}))
+               :value    (cI "#0ff")}))
 
      (textarea {:cols        40 :rows 5
                 :wrap        "hard"
@@ -136,7 +136,7 @@
                        (md-reset! me :clicks (inc (:clicks @me)))
                        (evt-std %)))}
 
-     {:clicks (c-in 0)
+     {:clicks (cI 0)
       :brand  "adderall"}
 
      (do (println :running! (:id @me))
@@ -160,7 +160,7 @@
      (br)
 
      (div {}
-         {:ae (c? (with-synapse (:github [])
+         {:ae (cF (with-synapse (:github [])
                     (send-xhr rx-nav-unk #_ ae-adderall)))}
          (p (pp/cl-format "~a adverse event" (md-get me :brand)))
          (when-let [r (xhr-response (md-get me :ae))]
@@ -183,14 +183,14 @@
 
 (defn matrix-build! []
   (md/make ::startwatch
-    :mx-dom (c?once (md/with-par me (test-page-4)))))
+    :mx-dom (cFonce (md/with-par me (test-page-4)))))
 
 (comment
   [ae-count 1
    brand "adderall"
    top (send-xhr :brand-adv-events (cl-format nil ae-brand brand ae-count)
                  {:brand brand
-                  :kids  (c? (when-let [aes (:results (xhr-selection me))]
+                  :kids  (cF (when-let [aes (:results (xhr-selection me))]
                                (countit :aes aes)
                                (the-kids
                                  (for [ae aes]

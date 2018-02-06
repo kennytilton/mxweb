@@ -35,7 +35,7 @@
                                   " of dom " dom))
                  tag))))
 
-(defn make-tag [tag attrs aux c?kids]
+(defn make-tag [tag attrs aux cFkids]
   ;;(prn :make-webmx webmx attrs aux)
   (let [tag-id (str (or (:id attrs)
                         (str tag "-" (swap! +tag-sid+ inc))))
@@ -44,7 +44,7 @@
                       :tag tag
                       :id tag-id
                       :attr-keys (distinct (conj (keys attrs) :id))
-                      :kids c?kids
+                      :kids cFkids
                       (concat (vec (apply concat (seq (dissoc attrs :id))))
                               (vec (apply concat (seq aux)))))]
     ;;(println :made-webmx!! webmx-id (keys @mx-webmx))
@@ -81,17 +81,17 @@
              (map? (second ~vargs))
              `(tiltontec.webmx.gen/make-tag ~~tag-name ~(first ~vargs) ~(second ~vargs)
                                           ~(when-let [~kids (seq (nthrest ~vargs 2))]
-                                             `(tiltontec.model.core/c?kids ~@~kids)))
+                                             `(tiltontec.model.core/cFkids ~@~kids)))
 
              :default `(tiltontec.webmx.gen/make-tag
                          ~~tag-name ~(first ~vargs)
                          {}
                          ~(when-let [~kids (seq (nthrest ~vargs 1))]
-                            `(tiltontec.model.core/c?kids ~@~kids))))
+                            `(tiltontec.model.core/cFkids ~@~kids))))
 
            :default `(tiltontec.webmx.gen/make-tag
                        ~~tag-name {} {}
-                       (tiltontec.model.core/c?kids ~@~vargs)))))))
+                       (tiltontec.model.core/cFkids ~@~vargs)))))))
 
 (defmacro deftags [& tags]
   `(do ~@(for [tag tags]

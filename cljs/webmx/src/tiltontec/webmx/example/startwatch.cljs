@@ -2,7 +2,7 @@
 (ns tiltontec.webmx.example.startwatch
   (:require [clojure.string :as str]
             [tiltontec.util.core :refer [now]]
-            [tiltontec.cell.core :refer-macros [c? c?once] :refer [c-in]]
+            [tiltontec.cell.core :refer-macros [cF cFonce] :refer [cI]]
             [tiltontec.model.core
              :refer-macros [with-par]
              :refer [matrix mx-par md-get md-reset! mxi-find mxu-find-name] :as md]
@@ -13,7 +13,7 @@
 
 (defn matrix-build! []
       (md/make ::startwatch
-               :mx-dom (c?once (md/with-par me
+               :mx-dom (cFonce (md/with-par me
                                             [(div {}
                                                (h1 {} "On your mark. Get set...open your browser console.")
                                                (clock))]))))
@@ -62,7 +62,7 @@
         ;; Further down we kick off a timer that just sets "tick" to true
         ;; and lets the "change" propagate.
         ;;
-        :tick    (c-in false :ephemeral? true)
+        :tick    (cI false :ephemeral? true)
 
         ;; We rather trickily set off a rapid timer when the div comes to life.
         ;; This is just a handy place to do that. It only runs once because it has
@@ -73,9 +73,9 @@
         ;; an input over which we have no control, such as an external device that sends
         ;; data at a fixed rate we cannot change.
 
-        :ticker  (c? (js/setInterval #(md-reset! me :tick true) 10))
+        :ticker  (cF (js/setInterval #(md-reset! me :tick true) 10))
 
-        :content (c? (let [self me]
+        :content (cF (let [self me]
                        (if (with-synapse (:throttle [last (atom nil)])
                              ;; the following is quite a bunch of code revealing some of how synapses work.
                              ;; With common requirements such as time-throttling we can reduce all this

@@ -6,7 +6,7 @@
 
             [tiltontec.util.core :refer [pln xor now]]
             [tiltontec.cell.base :refer [unbound ia-type *within-integrity* *defer-changes*]]
-            [tiltontec.cell.core :refer-macros [c? c?+ c?n c?+n c?once] :refer [c-in]]
+            [tiltontec.cell.core :refer-macros [cF cF+ cFn cF+n cFonce] :refer [cI]]
             [tiltontec.cell.evaluate :refer [not-to-be]]
             [tiltontec.cell.observer :refer-macros [fn-obs]]
             [tiltontec.cell.synapse
@@ -54,10 +54,10 @@
 
 (defn todo-list-item [me todo matrix]
   ;;(println :building-li (:title @todo))
-  (li {:class   (c? [(when (md-get me :selected?) "chosen")
+  (li {:class   (cF [(when (md-get me :selected?) "chosen")
                      (when (td-completed todo) "completed")])
 
-       :display (c? (if-let [route (md-get matrix :route)]
+       :display (cF (if-let [route (md-get matrix :route)]
                       (cond
                         (or (= route "All")
                             (xor (= route "Active")
@@ -68,16 +68,16 @@
       {:todo      todo
        ;; above is also key to identify lost/gained LIs, in turn to optimize list maintenance
 
-       :selected? (c? (some #{todo} (md-get (mxu-find-tag me :ul) :selections)))
+       :selected? (cF (some #{todo} (md-get (mxu-find-tag me :ul) :selections)))
 
-       :editing   (c-in false)}
+       :editing   (cI false)}
 
       (div {:class "view"}
         (input {:class   "toggle" ::webmx/type "checkbox"
-                :checked (c? (not (nil? (td-completed todo))))
+                :checked (cF (not (nil? (td-completed todo))))
                 :onclick #(td-toggle-completed! todo)})
 
-        (label {:onclick    (c? (let [selector (mxu-find-tag me :ul)]
+        (label {:onclick    (cF (let [selector (mxu-find-tag me :ul)]
                                   #(let [curr-sel (md-get selector :selections)]
                                      (md-reset! selector :selections
                                        (if (some #{todo} curr-sel)
@@ -93,11 +93,11 @@
 
         (input {::webmx/type "date"
                 :class     "due-by"
-                :value     (c?n (when-let [db (td-due-by todo)]
+                :value     (cFn (when-let [db (td-due-by todo)]
                                   (let [db$ (tmc/to-string (tmc/from-long db))]
                                     (subs db$ 0 10))))
-                :style     (c?once (make-css-inline me
-                                     :background-color (c? (if-let [due (td-due-by todo)]
+                :style     (cFonce (make-css-inline me
+                                     :background-color (cF (if-let [due (td-due-by todo)]
                                                              (if-let [clock (mxu-find-class (:tag @me) "std-clock")]
                                                                (let [time-left (- due (md-get clock :clock))]
                                                                  ;; (println :bgc? (td-title todo) due time-left)
@@ -131,7 +131,7 @@
 
 (defn ae-explorer [todo]
   (button {:class "li-show"
-           :style (c? (or (when-let [xhr (md-get me :ae)]
+           :style (cF (or (when-let [xhr (md-get me :ae)]
                             (let [aes (xhr-response xhr)]
                               (println :aex-aes!!! (td-title todo) (:status aes))
                               (when (= 200 (:status aes))
@@ -139,7 +139,7 @@
                           "display:none"))
            :onclick #(js/alert "Feature not yet implemented")}
 
-          {:ae (c?+ [:obs (fn-obs
+          {:ae (cF+ [:obs (fn-obs
                             (when-not (or (= old unbound) (nil? old))
                               ;;(println :aex-tossing-old-xhr!! old)
                               (not-to-be old)))]
@@ -166,13 +166,13 @@
 
 (defn interaction-explorer [todo]
   (button {:class "li-show"
-           :style (c? (if-let [ias (xhr-response (md-get me :nih))]
+           :style (cF (if-let [ias (xhr-response (md-get me :nih))]
                         (do
                           (println :nih-inters!!! (:status ias))
                           (when (not= 200 (:status ias))
                             "display:none"))
                         "display:none"))}
-          {:nih (c? (let [rxcuis [1170620 315971]]
+          {:nih (cF (let [rxcuis [1170620 315971]]
                       (println :nih-looking-up!!!! rxcuis)
                       (send-xhr (pp/cl-format nil nih-interactions rxcuis))))}
           (span {:style "font-size:0.7em;margin:2px;margin-top:0;vertical-align:top"}

@@ -79,7 +79,8 @@
      (string? me) (dom/safeHtmlToNode (sanitizer/sanitize me))
      (coll? me) (let [frag (.createDocumentFragment js/document)]
                   (doseq [tag me]
-                    (dom/appendChild frag (tag-dom-create tag)))
+                    (when tag ;; tolerate nils
+                      (dom/appendChild frag (tag-dom-create tag))))
                   frag)
      :default
      (do (when-let [dbg (or dbg *webmx-trace*)]
