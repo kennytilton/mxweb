@@ -37,7 +37,7 @@
       start-ms (.getTime (js/Date.))
       start$ (tmc/to-string (tmc/from-long start-ms))]
 
-  (prn :start!!!! start-ms start$)
+  ;; (prn :start!!!! start-ms start$)
 
   ;;(prn :app-dom!!!! (str app-dom))
 
