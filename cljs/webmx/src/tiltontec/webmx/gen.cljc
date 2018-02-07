@@ -40,7 +40,7 @@
   (let [tag-id (str (or (:id attrs)
                         (str tag "-" (swap! +tag-sid+ inc))))
         mx-tag (apply make
-                      :type :tiltontec.webmx.html/tag
+                      :type :tiltontec.webmx.base/tag
                       :tag tag
                       :id tag-id
                       :attr-keys (distinct (conj (keys attrs) :id))
@@ -51,7 +51,7 @@
     (swap! tag-by-id assoc tag-id mx-tag)
     mx-tag))
 
-(defmethod not-to-be [:tiltontec.webmx.html/tag] [me]
+(defmethod not-to-be [:tiltontec.webmx.base/tag] [me]
   ;; todo: worry about leaks
   ;; (println :not-to-be-webmx!!! (tagfo me))
 

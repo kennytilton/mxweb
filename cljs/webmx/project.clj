@@ -10,7 +10,7 @@
                  [cljs-http "0.1.44"]
                  [cheshire "5.8.0"]
                  [com.taoensso/tufte "1.1.2"]
-                 [com.tiltontec/matrix "0.1.2-SNAPSHOT"]
+                 [com.tiltontec/matrix "0.1.3-SNAPSHOT"]
                  [com.tiltontec/xhr "0.1.1-SNAPSHOT"]]
   :jvm-opts ^:replace ["-Xmx1g" "-server"]
   :plugins [[lein-npm "0.6.2"]]

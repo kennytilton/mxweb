@@ -3,6 +3,7 @@
     [clojure.string :as str]
     [clojure.walk :refer [stringify-keys]]
     [cljs.pprint :as pp]
+    [tiltontec.util.base :refer [type-cljc]]
     [tiltontec.util.core :refer [pln]]
     [tiltontec.cell.base :refer [md-ref? ia-type unbound]]
     [tiltontec.cell.observer :refer [observe observe-by-type]]
@@ -104,7 +105,10 @@
 (defn tag [me]
   (md-get me :tag))
 
-(defmethod observe [:kids :tiltontec.webmx.html/tag] [_ me newv oldv _]
+(defn tag? [me]
+  (= (type-cljc me) :tiltontec.webmx.base/tag))
+
+(defmethod observe [:kids :tiltontec.webmx.base/tag] [_ me newv oldv _]
   (when (not= oldv unbound)
     ;; oldv unbound means initial build and this incremental add/remove
     ;; is needed only when kids change post initial creation
@@ -146,7 +150,7 @@
 
 (def +inline-css+ (set [:display]))
 
-(defmethod observe-by-type [:tiltontec.webmx.html/tag] [slot me newv oldv _]
+(defmethod observe-by-type [:tiltontec.webmx.base/tag] [slot me newv oldv _]
   (when (not= oldv unbound)
     (when-let [dom (tag-dom me)]
       (when *webmx-trace*

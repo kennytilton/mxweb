@@ -1,5 +1,6 @@
 (ns tiltontec.webmx.style
   (:require
+    [tiltontec.util.base :refer [type-cljc]]
     [tiltontec.util.core :refer [pln]]
     [tiltontec.cell.base :refer [md-ref? ia-type unbound]]
     [tiltontec.cell.observer :refer [observe observe-by-type]]
@@ -8,6 +9,7 @@
      :refer-macros [the-kids mdv!]
      :refer [md-get fasc fm! make md-reset! backdoor-reset!]
      :as md]
+    [tiltontec.webmx.base :refer [tag?]]
     [goog.dom.classlist :as classlist]
     [goog.style :as gstyle]
     [goog.dom :as dom]
@@ -29,6 +31,8 @@
           (println :no-element id :found)))))
 
 (defn make-css-inline [tag & stylings]
+  (println :mkcss!!! (type-cljc tag)(tag? tag))
+  (assert (tag? tag))
   (apply make
          :type :tiltontec.webmx.css/css
          ;;:webmx-id (when webmx (:id @webmx))
