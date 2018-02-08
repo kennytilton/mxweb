@@ -2,6 +2,8 @@
 
 ### Usage
 
+[![Clojars Project](https://img.shields.io/clojars/v/com.tiltontec/webmx.svg)](https://clojars.org/com.tiltontec/webmx)
+
 Add to your project.clj dependency: `[com.tiltontec/webmx "0.1.0-SNAPSHOT"]`
 
 To build locally, checkout the scripts directory. `scripts/build` to build once, `scripts/watch` to build continuously.
