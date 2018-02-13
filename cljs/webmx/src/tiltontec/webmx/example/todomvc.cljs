@@ -110,7 +110,6 @@
                     (todo-entry-field))
 
             (todo-list-items)
-            (ae-autocheck?)
 
             (dashboard-footer))
 

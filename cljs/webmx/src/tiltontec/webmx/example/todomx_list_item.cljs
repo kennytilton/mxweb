@@ -50,7 +50,7 @@
             [cljs-time.coerce :as tmc]
             [clojure.string :as $]))
 
-(declare todo-edit ae-explorer)
+(declare todo-edit ae-explorer due-by)
 
 (defn todo-list-item [me todo matrix]
   ;;(println :building-li (:title @todo))
@@ -74,9 +74,7 @@
 
       (div {:class "view"}
         (input {:class   "toggle" ::webmx/type "checkbox"
-                :checked (cF (let [r (not (nil? (td-completed todo)))]
-                               (println :checked-decides r :tc (td-completed todo))
-                               r))
+                :checked (cF (not (nil? (td-completed todo))))
                 :onclick #(td-toggle-completed! todo)})
 
         (label {:onclick    (cF (let [selector (mxu-find-tag me :ul)]
@@ -93,35 +91,35 @@
                                (webmx/input-editing-start edt-dom (td-title todo)))}
                (td-title todo))
 
-        (input {::webmx/type "date"
-                :class     "due-by"
-                :value     (cFn (when-let [db (td-due-by todo)]
-                                  (let [db$ (tmc/to-string (tmc/from-long db))]
-                                    (subs db$ 0 10))))
-                :style     (cFonce (make-css-inline me
-                                     :background-color (cF (if-let [due (td-due-by todo)]
-                                                             (if-let [clock (mxu-find-class (:tag @me) "std-clock")]
-                                                               (let [time-left (- due (<mget clock :clock))]
-                                                                 ;; (println :bgc? (td-title todo) due time-left)
-                                                                 (cond
-                                                                   (neg? time-left) "red"
-                                                                   (< time-left (* 24 3600 1000)) "orange"
-                                                                   (< time-left (* 2 24 3600 1000)) "yellow"
-                                                                   :default "green"))
-                                                               cache)))))
-                :oninput   #(mset!> todo :due-by
-                              (tmc/to-long
-                                (tmc/from-string
-                                  (form/getValue (.-target %)))))})
-
         (button {:class   "destroy"
-                 :onclick #(td-delete! todo)})
-
-        (ae-explorer todo))
+                 :onclick #(td-delete! todo)}))
 
       (input {:class     "edit"
               :onblur    #(todo-edit % todo)
               :onkeydown #(todo-edit % todo)})))
+
+(defn todo-edit [e todo]
+  (let [edt-dom (.-target e)
+        li-dom (dom/getAncestorByTagNameAndClass edt-dom "li")]
+
+    (when (classlist/contains li-dom "editing")
+      (let [title (str/trim (form/getValue edt-dom))
+            stop-editing #(classlist/remove li-dom "editing")]
+        (cond
+          (or (= (.-type e) "blur")
+            (= (.-key e) "Enter"))
+          (do
+            (stop-editing)                                  ;; has to go first cuz a blur event will sneak in
+            (if (= title "")
+              (td-delete! todo)
+              (mset!> todo :title title)))
+
+          (= (.-key e) "Escape")
+          ;; this could leave the input field with mid-edit garbage, but
+          ;; that gets initialized correctly when starting editing
+          (stop-editing))))))
+
+;;; --- rxTrak components ------------------------
 
 (defn de-whitespace [s]
   ($/replace s #"\s" ""))
@@ -156,6 +154,28 @@
           (span {:style "font-size:0.7em;margin:2px;margin-top:0;vertical-align:top"}
                 "View Adverse Events")))
 
+(defn due-by [todo]
+  (input {::webmx/type "date"
+          :class     "due-by"
+          :value     (cFn (when-let [db (td-due-by todo)]
+                            (let [db$ (tmc/to-string (tmc/from-long db))]
+                              (subs db$ 0 10))))
+          :style     (cFonce (make-css-inline me
+                               :background-color (cF (if-let [due (td-due-by todo)]
+                                                       (if-let [clock (mxu-find-class (:tag @me) "std-clock")]
+                                                         (let [time-left (- due (<mget clock :clock))]
+                                                           ;; (println :bgc? (td-title todo) due time-left)
+                                                           (cond
+                                                             (neg? time-left) "red"
+                                                             (< time-left (* 24 3600 1000)) "orange"
+                                                             (< time-left (* 2 24 3600 1000)) "yellow"
+                                                             :default "green"))
+                                                         cache)))))
+          :oninput   #(mset!> todo :due-by
+                        (tmc/to-long
+                          (tmc/from-string
+                            (form/getValue (.-target %)))))}))
+
 (def nih-interactions
   "https://rxnav.nlm.nih.gov/REST/interaction/list.json?rxcuis=~{4242~a~^+~}")
 
@@ -180,23 +200,3 @@
           (span {:style "font-size:0.7em;margin:2px;margin-top:0;vertical-align:top"}
                 "View Interactions")))
 
-(defn todo-edit [e todo]
-  (let [edt-dom (.-target e)
-        li-dom (dom/getAncestorByTagNameAndClass edt-dom "li")]
-
-    (when (classlist/contains li-dom "editing")
-      (let [title (str/trim (form/getValue edt-dom))
-            stop-editing #(classlist/remove li-dom "editing")]
-        (cond
-          (or (= (.-type e) "blur")
-              (= (.-key e) "Enter"))
-          (do
-            (stop-editing)                                  ;; has to go first cuz a blur event will sneak in
-            (if (= title "")
-              (td-delete! todo)
-              (mset!> todo :title title)))
-
-          (= (.-key e) "Escape")
-          ;; this could leave the input field with mid-edit garbage, but
-          ;; that gets initialized correctly when starting editing
-          (stop-editing))))))
