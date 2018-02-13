@@ -14,7 +14,7 @@
              :refer []]
 
 
-            [tiltontec.model.core :refer [matrix mx-par md-get md-reset!
+            [tiltontec.model.core :refer [matrix mx-par <mget mset!>
                                           fget mxi-find mxu-find-class mxu-find-type
                                           kid-values-kids] :as md]
             [tiltontec.webmx.html
@@ -54,10 +54,10 @@
 
 (defn todo-list-item [me todo matrix]
   ;;(println :building-li (:title @todo))
-  (li {:class   (cF [(when (md-get me :selected?) "chosen")
+  (li {:class   (cF [(when (<mget me :selected?) "chosen")
                      (when (td-completed todo) "completed")])
 
-       :display (cF (if-let [route (md-get matrix :route)]
+       :display (cF (if-let [route (<mget matrix :route)]
                       (cond
                         (or (= route "All")
                             (xor (= route "Active")
@@ -68,18 +68,20 @@
       {:todo      todo
        ;; above is also key to identify lost/gained LIs, in turn to optimize list maintenance
 
-       :selected? (cF (some #{todo} (md-get (mxu-find-tag me :ul) :selections)))
+       :selected? (cF (some #{todo} (<mget (mxu-find-tag me :ul) :selections)))
 
        :editing   (cI false)}
 
       (div {:class "view"}
         (input {:class   "toggle" ::webmx/type "checkbox"
-                :checked (cF (not (nil? (td-completed todo))))
+                :checked (cF (let [r (not (nil? (td-completed todo)))]
+                               (println :checked-decides r :tc (td-completed todo))
+                               r))
                 :onclick #(td-toggle-completed! todo)})
 
         (label {:onclick    (cF (let [selector (mxu-find-tag me :ul)]
-                                  #(let [curr-sel (md-get selector :selections)]
-                                     (md-reset! selector :selections
+                                  #(let [curr-sel (<mget selector :selections)]
+                                     (mset!> selector :selections
                                        (if (some #{todo} curr-sel)
                                          (remove #{todo} curr-sel)
                                          (conj curr-sel todo))))))
@@ -99,7 +101,7 @@
                 :style     (cFonce (make-css-inline me
                                      :background-color (cF (if-let [due (td-due-by todo)]
                                                              (if-let [clock (mxu-find-class (:tag @me) "std-clock")]
-                                                               (let [time-left (- due (md-get clock :clock))]
+                                                               (let [time-left (- due (<mget clock :clock))]
                                                                  ;; (println :bgc? (td-title todo) due time-left)
                                                                  (cond
                                                                    (neg? time-left) "red"
@@ -107,7 +109,7 @@
                                                                    (< time-left (* 2 24 3600 1000)) "yellow"
                                                                    :default "green"))
                                                                cache)))))
-                :oninput   #(md-reset! todo :due-by
+                :oninput   #(mset!> todo :due-by
                               (tmc/to-long
                                 (tmc/from-string
                                   (form/getValue (.-target %)))))})
@@ -131,7 +133,7 @@
 
 (defn ae-explorer [todo]
   (button {:class "li-show"
-           :style (cF (or (when-let [xhr (md-get me :ae)]
+           :style (cF (or (when-let [xhr (<mget me :ae)]
                             (let [aes (xhr-response xhr)]
                               (println :aex-aes!!! (td-title todo) (:status aes))
                               (when (= 200 (:status aes))
@@ -146,7 +148,7 @@
                     (let [chk (mxu-find-class me "ae-autocheck")]
                       (assert chk)
                       (println :seeing-autocheck (tagfo chk) (:on? @chk))
-                      (when (md-get chk :on?)
+                      (when (<mget chk :on?)
                         (do
                           (println :aex-looking-up!!!! (td-title todo))
                           (send-xhr (pp/cl-format nil ae-by-brand (td-title todo)))))))}
@@ -166,7 +168,7 @@
 
 (defn interaction-explorer [todo]
   (button {:class "li-show"
-           :style (cF (if-let [ias (xhr-response (md-get me :nih))]
+           :style (cF (if-let [ias (xhr-response (<mget me :nih))]
                         (do
                           (println :nih-inters!!! (:status ias))
                           (when (not= 200 (:status ias))
@@ -192,7 +194,7 @@
             (stop-editing)                                  ;; has to go first cuz a blur event will sneak in
             (if (= title "")
               (td-delete! todo)
-              (md-reset! todo :title title)))
+              (mset!> todo :title title)))
 
           (= (.-key e) "Escape")
           ;; this could leave the input field with mid-edit garbage, but

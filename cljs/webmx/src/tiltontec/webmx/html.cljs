@@ -10,7 +10,7 @@
     [tiltontec.cell.evaluate :refer [not-to-be not-to-be-self]]
     [tiltontec.model.core
      :refer-macros [the-kids mdv!]
-     :refer [fget md-get fasc fm! make md-reset! backdoor-reset!]
+     :refer [fget <mget fasc fm! make mset!> backdoor-reset!]
      :as md]
 
     [tiltontec.webmx.style
@@ -54,16 +54,16 @@
   ;; are firing for the first time, because 'me' has not yet
   ;; been installed in the actual DOM, so call this only
   ;; from event handlers and the like.
-  (let [id (md-get me :id)]
+  (let [id (<mget me :id)]
     (assert id)
-    (or (md-get me :dom-cache)
+    (or (<mget me :dom-cache)
         (if-let [dom (dom/getElement (str id))]
           (backdoor-reset! me :dom-cache dom)
           (println :no-element id :found)))))
 
 (defn tag-attrs [mx]
   (let [beef (remove nil? (for [k (:attr-keys @mx)]
-                            (when-let [v (md-get mx k)]
+                            (when-let [v (<mget mx k)]
                               [(name k) (case k
                                           :style (tagcss/style-string v)
                                           :class (if (coll? v)
@@ -87,11 +87,11 @@
      (do (when-let [dbg (or dbg *webmx-trace*)]
            (pln :tag-dom-create dbg (tagfo me)))
          ;;(pln :domcre-attrs (:attr-keys @me) (webmx-attrs me))
-         (let [dom (apply dom/createDom (md-get me :tag)
+         (let [dom (apply dom/createDom (<mget me :tag)
                           (tag-attrs me)
                           (concat                           ;; to-do: need this?
-                            (map #(tag-dom-create % dbg) (md-get me :kids))
-                            (when-let [c (md-get me :content)]
+                            (map #(tag-dom-create % dbg) (<mget me :kids))
+                            (when-let [c (<mget me :content)]
                               [(tag-dom-create c)])))]
 
            dom)))))
@@ -103,7 +103,7 @@
       (name keyword)))
 
 (defn tag [me]
-  (md-get me :tag))
+  (<mget me :tag))
 
 (defn tag? [me]
   (= (type-cljc me) :tiltontec.webmx.base/tag))
@@ -154,7 +154,8 @@
   (when (not= oldv unbound)
     (when-let [dom (tag-dom me)]
       (when *webmx-trace*
-        (pln :observing-tagtype (tagfo me) slot newv oldv))
+        (when-not (some #{slot} [:tick])
+          (pln :observing-tagtype (tagfo me) slot newv oldv)))
 
       (cond
         (= slot :content) (set! (.-innerHTML dom) newv)
@@ -171,7 +172,7 @@
                                         newv))
             :checked (set! (.-checked dom) newv)
             (do
-              (pln :obs-by-type-genset slot newv)
+              ;(pln :obs-by-type-genset slot newv)
               (.setAttribute dom (name slot) newv))))
 
         (+inline-css+ slot)
@@ -182,19 +183,19 @@
 (defn mxu-find-class
   "Search up the matrix from node 'where' looking for element with class"
   [where class]
-  (fget #(= (name class) (md-get % :class))
+  (fget #(= (name class) (<mget % :class))
         where :me? false :up? true))
 
 (defn mxu-find-tag
   "Search up the matrix from node 'where' looking for element with class"
   [where tag]
-  (fget #(= (name tag) (md-get % :tag))
+  (fget #(= (name tag) (<mget % :tag))
         where :me? false :up? true))
 
 (defn mxu-find-id
   "Search up the matrix from node 'where' looking for element with class"
   [where id]
-  (fget #(= (name id) (md-get % :id))
+  (fget #(= (name id) (<mget % :id))
         where :me? false :up? true))
 
 ;;; --- localStorage io implementation --------------------------------

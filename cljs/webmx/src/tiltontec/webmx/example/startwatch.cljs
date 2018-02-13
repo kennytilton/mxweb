@@ -5,7 +5,7 @@
             [tiltontec.cell.core :refer-macros [cF cFonce] :refer [cI]]
             [tiltontec.model.core
              :refer-macros [with-par]
-             :refer [matrix mx-par md-get md-reset! mxi-find mxu-find-name] :as md]
+             :refer [matrix mx-par <mget mset!> mxi-find mxu-find-name] :as md]
             [tiltontec.webmx.gen :refer [evt-tag target-value] :refer-macros [h1 input div]]
             [tiltontec.cell.synapse :refer-macros [with-synapse]]))
 
@@ -51,7 +51,15 @@
 ;; just to show a synapse at work.
 ;;
 
+(def hits (atom 0))
+(def start (atom 0))
+(def maxr (atom 0))
+
 (defn clock []
+  (reset! hits 0)
+  (reset! maxr 0)
+  (reset! start (now))
+
   (div {:class   "example-clock"
         ;;
         ;; The ephemeral? option may be new to you. It says "revert me to nil immediately after propagation".
@@ -73,15 +81,25 @@
         ;; an input over which we have no control, such as an external device that sends
         ;; data at a fixed rate we cannot change.
 
-        :ticker  (cF (js/setInterval #(md-reset! me :tick true) 10))
+        :ticker  (cF (js/setInterval #(mset!> me :tick true) 10))
 
-        :content (cF (let [self me]
+        :content (cF (if (<mget me :tick)
+                         (let [d (js/Date.)
+                               es (/ (- (now) @start) 1000)]
+                           (swap! hits inc)
+                           (when (> es 1)
+                            (let [r (Math/round (/ @hits es))]
+                              (when (> r @maxr)
+                                (reset! maxr r))))
+                           (str @maxr " > "(first (str/split (.toTimeString d) " ")) ":" (.getUTCMilliseconds d)))
+                         "*checks watch*"))
+        #_ (cF (let [self me]
                        (if (with-synapse (:throttle [last (atom nil)])
                              ;; the following is quite a bunch of code revealing some of how synapses work.
                              ;; With common requirements such as time-throttling we can reduce all this
                              ;; to a one-liner cSynTimely macro or something.
                              ;; (println :self-me self me (= self me))
-                             (when (md-get self :tick)
+                             (when (<mget self :tick)
                                ;; the browser console will show with this print statement the full load
                                ;; of events coming through. Ouside the synapse body, a second print statememnt
                                ;; will show when the "content" formula actually gets re-run (and actually
@@ -93,8 +111,8 @@
                                  (when prop?
                                    (reset! last (now)))
 
-                                 ;; In Common Lisp we can say (values true :propagate). For Closure, we muat by
-                                 ;; synapse API contract (a) wrape the return value in a vector and (b) use meta
+                                 ;; In Common Lisp we can say (values true :propagate). For Closure, we must by
+                                 ;; synapse API contract (a) wrap the return value in a vector and (b) use meta
                                  ;; to communicate whether or not to propagate.
                                  ^{:propagate prop?} [true])))
 

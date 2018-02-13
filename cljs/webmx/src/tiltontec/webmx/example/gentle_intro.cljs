@@ -80,7 +80,7 @@
      :refer [cI c-reset!]]
     [tiltontec.cell.observer :refer-macros [fn-obs]]
     [tiltontec.model.core
-     :refer [matrix mx-par md-get md-reset! mxi-find  kid-values-kids] :as md]
+     :refer [matrix mx-par <mget mset!> mxi-find  kid-values-kids] :as md]
     [tiltontec.webmx.html
      :refer [io-read io-upsert io-clear-storage
              dom-tag tagfo tag-dom mxu-find-class
@@ -266,12 +266,12 @@
 
                 ;; now wrap mutable slots as Cells...
                 :title (cI "Sell car")
-                :versions (cF+ [:obs (fn-obs (pln :version new (md-get me :title)))]
+                :versions (cF+ [:obs (fn-obs (pln :version new (<mget me :title)))]
                                ; we count the revisions of a todo,
                                ; a bit of silliness but I cannot think of a
                                ; formula for a todo (but note the availability
                                ; of the current value 'cache' to a formula).
-                               (when (md-get me :title)
+                               (when (<mget me :title)
                                  (inc (if (= cache unbound) 0 cache))))
 
                 ; these next two will be controlled by the user in the real TodoMVC
@@ -283,7 +283,7 @@
     ; and observing all cells, input or formulaic. Ergo, we got console output straight away.
 
 
-    (md-reset! to-do :title "Sell car and boat")
+    (mset!> to-do :title "Sell car and boat")
     ; console:  (:version 2 "Sell car and boat")
 
     (md/make ::dummyApp
@@ -316,9 +316,9 @@
                 :title (cI "Sell car")
                 :completed (cI true))
 
-        ; a bit of syntactic sugar to hide the md-get wiring:
-        completed #(md-get % :completed)
-        title #(md-get % :title)]
+        ; a bit of syntactic sugar to hide the <mget wiring:
+        completed #(<mget % :completed)
+        title #(<mget % :title)]
 
     #_ (go (let [response (<! (client/get "https://api.github.com"
                                           {:with-credentials? false}))]
@@ -332,7 +332,7 @@
                         (p {} "(click below to toggle whether to-do has been done)") ;; <-- User Guide
 
                         (p {:onclick #(binding [tag/*webmx-trace* "toggle"]
-                                        (md-reset! to-do :completed (not (completed to-do))))
+                                        (mset!> to-do :completed (not (completed to-do))))
                             ; The dataflow engine propagates the change to the to-do to
                             ; the next two properties, and the console shows those changes
                             ; being propagated to the DOM attributes (and no DOM added or removed).

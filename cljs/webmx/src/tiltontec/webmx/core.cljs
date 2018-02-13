@@ -11,13 +11,14 @@
     [goog.dom :as dom]
     [tiltontec.webmx.html :refer [tag-dom-create *webmx-trace*]]
 
-    [tiltontec.webmx.mxintro.rxtrak :as app] ;; Intro app for Lisp-NYC, 2018
+    ;;[tiltontec.webmx.mxintro.rxtrak :as app] ;; Intro app for Lisp-NYC, 2018
+
     ;;[tiltontec.webmx.example.gloss :as app]
     ;;[tiltontec.webmx.example.testing :as app]
-    ;;[tiltontec.webmx.example.todomvc :as app]
+    [tiltontec.webmx.example.todomvc :as app]
     ;;[tiltontec.webmx.example.gentle-intro :as app]
-    ;;[tiltontec.webmx.example.ticktock :as app]
-    ;;[tiltontec.webmx.example.startwatch :as app]
+    ;; [tiltontec.webmx.example.ticktock :as app] ;; use ticktock.html to get css
+    ;;[tiltontec.webmx.example.startwatch :as app] ;; use startwatch.html to get css
 
     )
   (:import [goog.date UtcDateTime]))
@@ -32,7 +33,7 @@
 
       app-dom (binding [*webmx-trace* nil]                  ;; <-- set to nil if console too noisy
                 (tag-dom-create
-                  (md/md-get app-matrix :mx-dom)))
+                  (md/<mget app-matrix :mx-dom)))
 
       start-ms (.getTime (js/Date.))
       start$ (tmc/to-string (tmc/from-long start-ms))]
@@ -43,6 +44,6 @@
 
   (set! (.-innerHTML root) nil)
   (dom/appendChild root app-dom)
-  (when-let [route-starter (md/md-get app-matrix :router-starter)]
+  (when-let [route-starter (md/<mget app-matrix :router-starter)]
     (prn :starting-router)
     (route-starter)))

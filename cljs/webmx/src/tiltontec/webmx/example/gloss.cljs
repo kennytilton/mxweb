@@ -11,7 +11,6 @@
 
 (declare clock time-color color-input)
 
-
 (defn matrix-build! []
   (md/make ::gloss
     :mx-dom (cFonce (md/with-par me

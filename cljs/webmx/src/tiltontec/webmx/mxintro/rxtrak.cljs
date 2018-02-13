@@ -236,81 +236,54 @@
 
 (defn hello-matrix
   []
-  (reset! matrix (md/make
+  (reset! matrix
+    (md/make
 
-                   ;; these next two lines "list" the system clock into the matrix where
-                   ;; other things can be affected by it.
-                   :time (cI (int (/ (now) 1000)))
-                   :ticker (cF1 (js/setInterval #(mswap!> me :time inc) 1000))
+      ;; these next two lines "lift" the system clock into the matrix where
+      ;; other things can be affected by it.
+      :time (cI (int (/ (now) 1000)))
+      :ticker (cF1 (js/setInterval #(mswap!> me :time inc) 1000))
 
-                   :rx (cF1 (let [matrix me]
-                              (md/make
-                                :title "adderall"
-                                :refills (cI 5)
-                                :next-refill (cF1 (+ (<mget matrix :time) 5))
-                                :alarm? (cF (< (refill-within me) 2))
-                                :overdue? (cF (neg? (refill-within me)))
-                                :refill-within (cF+ [:obs (fn-obs
-                                                            (println :refill-within new :for (drug-name me)))]
-                                                 (- (next-refill me) (<mget matrix :time))))))
+      :rx (cF1 (let [matrix me]
+                 (md/make
+                   :title "adderall"
+                   :refills (cI 5)
+                   :next-refill (cF1 (+ (<mget matrix :time) 5))
+                   :alarm? (cF (< (refill-within me) 2))
+                   :overdue? (cF (neg? (refill-within me)))
+                   :refill-within (cF+ [:obs (fn-obs
+                                               (println :refill-within new :for (drug-name me)))]
+                                    (- (next-refill me) (<mget matrix :time))))))
 
-                   :mx-dom (cF (let [rx (<mget me :rx)]
-                                 (md/with-par me
-                                   [(back-forth)
-                                    (section {:class "todoapp"}
-                                      (h1 "&#x211e;Trak")
-                                      (h3 (str (rand-int 9999) " A multi-model, working Matrix."))
-                                      (div {:style {:display         "flex"
-                                                    :flex-direction  "column"
-                                                    :justify-content "space-between"
-                                                    :margin-top      "36px"
-                                                    :height          "164px"
-                                                    :font-size       "48px"}}
-                                        (span {:style {:flex-basis "content"}}
-                                          (str " Seconds to "
-                                            (drug-name rx)
-                                            " refill: " (refill-within rx)))
-                                        (span {:style
-                                               (cF1 (make-css-inline me
-                                                      :visibility (cF (if (alarm? rx)
-                                                                        "visible" "hidden"))
-                                                      :flex-basis "content"))}
-                                          "Get that refill!")
-                                        (span {:style
-                                               (cF1 (make-css-inline me
-                                                      :visibility (cF (if (overdue? rx)
-                                                                        "visible" "hidden"))
-                                                      :flex-basis "content"))} " C'mon, man!!")
-                                        (span "")))]
-                                   )))))
-  #_(let [rx (md/make
-               :title "adderall"
-               :refills (cI 5)
-               :next-refill (cI (+ (now) (ms-days 5)))
-               :alarm? (cF (< (* (refill-within me) 1000) (ms-days 2)))
-               :refill-within (cF+ [:obs (fn-obs
-                                           (println :refill-within new :for (drug-name me)))]
-                                (int (/ (- (next-refill me) (now)) 1000))))]
-      (md/make
-        :mx-dom (cFonce [(back-forth)
-                         (h1 "Hello, Model!")
-                         (h3 "Model, yes. Working model, no.")
+      :mx-dom (cF (let [rx (<mget me :rx)]
+                    (md/with-par me
+                      [(back-forth)
+                       (section {:class "todoapp"}
+                         (h1 "&#x211e;Trak")
+                         (h3 (str (rand-int 9999) " A multi-model, working Matrix."))
                          (div {:style {:display         "flex"
                                        :flex-direction  "column"
                                        :justify-content "space-between"
                                        :margin-top      "36px"
                                        :height          "164px"
                                        :font-size       "48px"}}
-                           (span {:flex-basis "content"}
-                             (str "Seconds to "
+                           (span {:style {:flex-basis "content"}}
+                             (str " Seconds to "
                                (drug-name rx)
                                " refill: " (refill-within rx)))
-                           (when-let [x (alarm? rx)]
-                             (println :alarm x)
-                             (span {:flex-basis "content"} " Get that refill!")))
-                         (pre {:style {:font-size  "16px"
-                                       :margin-top "36px"}}
-                           (str/replace hellomd #"<" "&lt;"))]))))
+                           (span {:style
+                                  (cF1 (make-css-inline me
+                                         :visibility (cF (if (alarm? rx)
+                                                           "visible" "hidden"))
+                                         :flex-basis "content"))}
+                             "Get that refill!")
+                           (span {:style
+                                  (cF1 (make-css-inline me
+                                         :visibility (cF (if (overdue? rx)
+                                                           "visible" "hidden"))
+                                         :flex-basis "content"))} " C'mon, man!!")
+                           (span "")))]
+                      ))))))
 
 (declare landing-page mx-todos mx-todo-items mx-find-matrix start-router mx-route)
 

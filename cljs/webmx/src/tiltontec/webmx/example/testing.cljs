@@ -10,7 +10,7 @@
 
             [tiltontec.model.core
              :refer-macros [with-par]
-             :refer [fget matrix mx-par md-get md-reset! mxi-find mxu-find-name] :as md]
+             :refer [fget matrix mx-par <mget mset!> mxi-find mxu-find-name] :as md]
 
             [tiltontec.xhr
              :refer [make-xhr send-xhr send-unparsed-xhr xhr-send xhr-await xhr-status
@@ -40,38 +40,38 @@
          :onclick #(let [me (evt-tag %)]
                      (when true                             ;; (= (:id @me) "xx")
                        (println :xx-click!! % (:id @me) (:clicks @me))
-                       (md-reset! me :clicks (inc (:clicks @me)))))}
+                       (mset!> me :clicks (inc (:clicks @me)))))}
 
      {:clicks (cI 0)}
 
-     (str "Conten ?! Content rule" (md-get (mx-par me) :clicks) "|Ooops")
+     (str "Conten ?! Content rule" (<mget (mx-par me) :clicks) "|Ooops")
 
      (span {:style  (cF (make-css-inline me
                           :color "blue"
                           :background-color "red"
-                          :padding (cF (let [c (md-get (mx-par (:tag @me)) :clicks)]
+                          :padding (cF (let [c (<mget (mx-par (:tag @me)) :clicks)]
                                          (str (* c 6) "px")))))
-            :hidden (cF (odd? (md-get (mx-par me) :clicks)))}
-           {:content (cF (str "Himom style ?! " (md-get (mx-par me) :clicks)))})
+            :hidden (cF (odd? (<mget (mx-par me) :clicks)))}
+           {:content (cF (str "Himom style ?! " (<mget (mx-par me) :clicks)))})
 
      (span {:style "color:red;background-color:#eee;padding:10px"}
-           {:content (cF (str "Himom style string! " (md-get (mx-par me) :clicks)))})
+           {:content (cF (str "Himom style string! " (<mget (mx-par me) :clicks)))})
 
-     (span {:style (cF (let [c (md-get (mx-par me) :clicks)]
+     (span {:style (cF (let [c (<mget (mx-par me) :clicks)]
                          {:color            "blue"
                           :background-color "yellow"
                           :padding          (str (* c 6) "px")}))}
-           {:content (cF (str "Himom style ?! " (md-get (mx-par me) :clicks)))})
+           {:content (cF (str "Himom style ?! " (<mget (mx-par me) :clicks)))})
 
      (div
        (input {:id       "subId"
                :webmx/type "checkbox"
                :value    "subvalue"
-               :checked  (cF (md-get me :subbing?))
+               :checked  (cF (<mget me :subbing?))
                :onclick  #(let [tgt (evt-tag %)]
                             (.stopPropagation %)
-                            (md-reset! (evt-tag %) :subbing?
-                              (not (md-get me :subbing?))))}
+                            (mset!> (evt-tag %) :subbing?
+                              (not (<mget me :subbing?))))}
               {:subbing? (cI true)})
        (label {:for "subId"}
               "Sub label OK?"))
@@ -79,9 +79,9 @@
      (div {:class "color-input" :style "margin-top:24px"}
        "Time color: "
        (input {:name     :timecolor
-               :class    (cF (let [xx (fget #(= "xx" (md-get % :id)) me)]
+               :class    (cF (let [xx (fget #(= "xx" (<mget % :id)) me)]
                                (assert xx)
-                               (when (even? (md-get xx :clicks))
+                               (when (even? (<mget xx :clicks))
                                  ["back-cyan" "boulder"])))
                :webmx/type "text"
                :value    (cI "#0ff")}))
@@ -133,14 +133,14 @@
          :onclick #(let [me (evt-tag %)]
                      (when (= (:id @me) "xx")
                        (println :xx-click!! % (:id @me) (:clicks @me))
-                       (md-reset! me :clicks (inc (:clicks @me)))
+                       (mset!> me :clicks (inc (:clicks @me)))
                        (evt-std %)))}
 
      {:clicks (cI 0)
       :brand  "adderall"}
 
      (do (println :running! (:id @me))
-         (str "Content?! Content rule" (md-get me :clicks) "|Ooops"))
+         (str "Content?! Content rule" (<mget me :clicks) "|Ooops"))
 
      (br)
      (div
@@ -152,7 +152,7 @@
        (let [xx (mx-par me)]
          (println :id?? (:id @me))
          (assert (= "xx" (:id @xx)))
-         (when (odd? (md-get xx :clicks))
+         (when (odd? (<mget xx :clicks))
            (button {:class "mdl-button mdl-js-button mdl-js-ripple-effect"
                     :onclick #(evt-std %)}
                    {:mdl true}
@@ -162,8 +162,8 @@
      (div {}
          {:ae (cF (with-synapse (:github [])
                     (send-xhr rx-nav-unk #_ ae-adderall)))}
-         (p (pp/cl-format "~a adverse event" (md-get me :brand)))
-         (when-let [r (xhr-response (md-get me :ae))]
+         (p (pp/cl-format "~a adverse event" (<mget me :brand)))
+         (when-let [r (xhr-response (<mget me :ae))]
            (str "Booya!:" r)))
 
      #_ (div (let [ax (with-synapse (:github [])
@@ -201,3 +201,17 @@
                                                               :serious])
                                          :patient (dissoc (:patient ae) :drug)
                                          :kids (patient-drugs ae))))))})])
+
+#_
+(div {:style {:background-color "yellow"
+              :display "flex"
+              :min-height "96px"
+              :flex-direction "row"
+              :flex-wrap "wrap"
+
+              ;;:gap "24px"
+              :justify-content "space-between"
+              }}
+  (map #(span {:style {:background "cyan"
+                       :flex-basis "content"}}{}
+          (str % ",")) (str/split "four score and seven years ago today our forefathers brought forth on this continent" " ")))

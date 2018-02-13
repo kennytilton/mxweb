@@ -2,7 +2,7 @@
   (:require [clojure.string :as str]
             [tiltontec.cell.core :refer-macros [cF cFonce] :refer [cI]]
             [tiltontec.model.core
-             :refer [matrix mx-par md-get <mget mset!> md-reset! mxi-find mxu-find-name] :as md]
+             :refer [matrix mx-par <mget <mget mset!> mset!> mxi-find mxu-find-name] :as md]
             [tiltontec.webmx.gen :refer [evt-tag target-value] :refer-macros [h1 input div span]]))
 
 (declare clock time-color color-input)
@@ -14,20 +14,7 @@
                       [(div {}
                          (h1 {} "Hello, world. 'Tis now....")
                          (clock)
-                         (color-input)
-                         (div {:style {:background-color "yellow"
-                                       :display "flex"
-                                       :min-height "96px"
-                                       :flex-direction "row"
-                                       :flex-wrap "wrap"
-
-                                       ;;:gap "24px"
-                                       :justify-content "space-between"
-                                       }}
-                               (map #(span {:style {:background "cyan"
-                                                    :flex-basis "content"}}{}
-                                       (str % ",")) (str/split "four score and seven years ago today our forefathers brought forth on this continent" " ")))
-                         )]))))
+                         (color-input))]))))
 
 (defn clock []
   (div {:class   "example-clock"
@@ -48,6 +35,6 @@
     "Time color: "
     (input {:name     :timecolor
             :tag/type "text"
-            :value    (cI "#0ff")
+            :value    (cI "#000")
             :onchange #(mset!> (evt-tag %)
                                   :value (target-value %))})))
