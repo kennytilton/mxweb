@@ -96,9 +96,9 @@ Speaking of (transparent) code, let us look at some more code to make the above 
 
 The view from 30k is nice but unsatisfying; I for one do not grasp a software library until I see it in the wild. The source code of this repository includes three heavily-annotated application source files (or if you are like us skip down to "Matrix Highlights" to see if you have any interest): 
 
-* Two belong to the TodoMVC implementation: [todomx/todo.cljs](https://github.com/kennytilton/todoFRP/blob/matrixjs/todo/MatrixCLJS/src/todomx/todo.cljs) covers how we load to-dos from `localStorage` into the application matrix so the view can track them reactively, [todomx/matrix.cljs](https://github.com/kennytilton/todoFRP/blob/matrixjs/todo/MatrixCLJS/src/todomx/matrix.cljs) covers the app itself, predominantly the view.
-* The third annotated source is [todomx/gentle-intro.cljs](https://github.com/kennytilton/todoFRP/blob/matrixjs/todo/MatrixCLJS/src/example/gentle_intro.cljs), a zero-to-sixty progression of working examples starting with a basic reactive Cell and ending with point updates to the DOM in reaction to a change in the title of a to-do.
-* Finally, [todomx/startwatch.cljs](https://github.com/kennytilton/todoFRP/blob/matrixjs/todo/MatrixCLJS/src/todomx/startwatch.cljs) demonstrates a fun capability in which formulaic Cells close over atoms in which they maintain state across rule invocations to support semantics derived from the *stream* of values they encounter. Think `RxJS Lite`. The moral here is that streams are emergent properties arising naturally from the values sampled by formulaic Cells; there is no need to construct or maintain them explicitly.
+* Two belong to the TodoMVC implementation: [example/todo.cljs](https://github.com/kennytilton/webmx/blob/master/cljs/webmx/src/tiltontec/webmx/example/todo.cljs) covers how we load to-dos from `localStorage` into the application matrix so the view can track them reactively, [example/todomvc.cljs](https://github.com/kennytilton/webmx/blob/master/cljs/webmx/src/tiltontec/webmx/example/todomvc.cljs) covers the app itself, predominantly the view.
+* The third annotated source is [todomx/gentle-intro.cljs](https://github.com/kennytilton/webmx/tree/master/cljs/webmx/src/tiltontec/webmx/example), a zero-to-sixty progression of working examples starting with a basic reactive Cell and ending with point updates to the DOM in reaction to a change in the title of a to-do.
+* Finally, [todomx/startwatch.cljs](https://github.com/kennytilton/webmx/blob/master/cljs/webmx/src/tiltontec/webmx/example/startwatch.cljs) demonstrates a fun capability in which formulaic Cells close over atoms in which they maintain state across rule invocations to support semantics derived from the *stream* of values they encounter. Think `RxJS Lite`. The moral here is that streams are emergent properties arising naturally from the values sampled by formulaic Cells; there is no need to construct or maintain them explicitly.
 
 Check those out to see how the ideas of Matrix play out in working code. Or, if surfing code seems too much like work, here are the highlights.
 
@@ -135,14 +135,6 @@ That list hits transparency and automation quite often, by design intent. In his
 > Smalltalk and Common Lisp are languages that were obviously written by people trying to write programs for people.
 
 MatrixCLJS was developed for people trying to building applications, and to us that means not having to think much about MatrixCLJS.
-
-## Next steps
-The next steps for MatrixCLJS are:
-* Synapses [DONE]: Check out this [cursory treatment](https://github.com/kennytilton/todoFRP/blob/matrixjs/todo/MatrixCLJS/Synapses.md) of synapses or, again, see the heavily annotated [todomx/startwatch.cljs](https://github.com/kennytilton/todoFRP/blob/matrixjs/todo/MatrixCLJS/src/todomx/startwatch.cljs) and the [synapse tests](https://github.com/kennytilton/todoFRP/blob/matrixjs/todo/MatrixCLJS/test/tiltontec/cell/synapse_test.cljc) to see how a free-floating or "anonymous" Cell can serve usefully as an intermediary (hence "synapse") between a host Cell and its dependencies.
-* Eliminate Callback Hell [DONE]: Track [this write-up](https://github.com/kennytilton/xhr/blob/master/cljs/xhr/XHR.md) to see how simple property-to-property dataflow greatly ameliorates the coding of elaborate remote request processing. Spoiler alert: we now have Callback Purgatory, no longer in Hell but some work remains when using the new synapse-enabled *XHR* module to reach remote request heaven. 
-* Documentation: [MDN](https://developer.mozilla.org/en-US/) by design imperative will be the doc for `Tag`, but the Matrix dataflow substrate needs doc.
-
-We also must decide whether to work first on the ClojureScript version or the Javascript version. Send your votes and any corrections, comments, or questions to kentilton at gmail etc etc.
 
 ## License
 
