@@ -63,7 +63,7 @@ Above we see the CSS `class` tracking the completed property of the lexically cl
         :checked (c? (<mget todo :completed))
         :onclick #(mswap! todo :completed not)}) ;; <-- mswap!> triggers the dataflow
 ````
-`mswap!>` is the dataflow "writer" that mirrors `<mget`. It causes all direct or indirect dependents to recalculate. Note also the `checked` attribute, another property following the `completed` property of our todo.
+`mswap!>` is one dataflow "writer" that mirrors `<mget`. `mset!> is another. They cause all direct or indirect dependents to recalculate. Note also the `checked` attribute, another property following the `completed` property of our todo.
 
 Why the "input" characterization? It cannot be rules all the way down. These cells are the inputs into the dataflow from outside imperative code. The diagram below is of a *directed acyclic graph* that can help us imagine the flow that arises when input cells change and their new values are then consumed by dependent formulaic cells when their recomputation is triggered. In the diagram below, cells 7, 5, and 3 would be the input cells.
 
@@ -78,17 +78,17 @@ The dataflow engine propagates each new input value by recursively recomputing d
         :checked (set! (.-checked (tag-dom me)) new-value
         ....)))
 ````
-In contrast with RxJS and MobX, Matrix observers work off to the side, if you will, as ancillary participants tapping into the main flow to produce tangible behavior. Think "UN observer vs. combatant". 
+In contrast with RxJS and MobX, Matrix observers work off to the side, if you will, as ancillary participants tapping into the main flow to produce tangible application behavior (if only a screen update). Think "UN observer vs. combatant". 
 
-We refer to the combination of cascading recomputation and consequent observation as *dataflow*. Objects with Cells as properties are called *models* in the sense of a *working model*, this because these objects change and act autonomously as driven by dataflow. Hence the *md-* prefix, by the way.
+We refer to the combination of cascading recomputation and consequent observation as *data flow*. Objects with Cells as properties are called *models* in the sense of a *working model*, because these objects change and act autonomously as driven by data flow. Hence the *md-* prefix, by the way.
 
 Matrix includes support for arranging models as a tree in which a model can have zero or more children and children have one parent and have a reference to that parent. This omni-directional linkage means any cell formula or observer can reach any other cell in the tree of models; they have perfect information. We call a population of objects connected by interdependent cell properties a *matrix* in concordance with this definition (forget the otherwise fine movie): 
 
 > ma·trix ˈmātriks *noun* an environment in which something else takes form. *Origin:* Latin, female animal used for breeding, parent plant, from *matr-*, *mater*
 
-In the case of TodoFRP, that something else is an interactive do-list. 
+In the case of TodoMVC, that something else is an interactive do-list. 
 
-A major design goal was ease of use by programmers. Dependencies are established transparently by simply reading a property. Dataflow is triggered simply by assigning a new value to an input cell. Shuffle the code during a refactoring and the pub/sub moves with it. 
+A major design goal was ease of use by programmers. Dependencies are established transparently by simply reading a property. Data flow is triggered simply by assigning a new value to an input cell. Shuffle the code during a refactoring and the pub/sub moves with it. 
 
 Speaking of (transparent) code, let us look at some more code to make the above more concrete. 
 
