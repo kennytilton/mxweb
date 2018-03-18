@@ -31,18 +31,6 @@
           (println :no-element id :found)))))
 
 (defn make-css-inline [tag & stylings]
-  ;;;
-  ;;;
-  ;;;
-  ;;;
-  ;;;
-  ;;;
-  ;;;
-  ;;;
-  ;;;
-  ;;;
-  ;;;
-  ;;; (println :mkcss!!! (type-cljc tag)(tag? tag))
   (assert (tag? tag))
   (apply make
          :type :tiltontec.webmx.css/css

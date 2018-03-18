@@ -1,6 +1,7 @@
 (ns tiltontec.webmx.example.ticktock
   (:require [clojure.string :as str]
             [tiltontec.cell.core :refer-macros [cF cFonce] :refer [cI]]
+            [example.pipeline :as pline]
             [tiltontec.model.core
              :refer [matrix mx-par <mget <mget mset!> mset!> mxi-find mxu-find-name] :as md]
             [tiltontec.webmx.gen :refer [evt-tag target-value] :refer-macros [h1 input div span]]))
@@ -9,12 +10,13 @@
 
 
 (defn matrix-build! []
+
   (md/make ::ticktock
     :mx-dom (cFonce (md/with-par me
                       [(div {}
                          (h1 {} "Hello, world. 'Tis now....")
-                         (clock)
-                         (color-input))]))))
+                         #_(clock)
+                         #_(color-input))]))))
 
 (defn clock []
   (div {:class   "example-clock"

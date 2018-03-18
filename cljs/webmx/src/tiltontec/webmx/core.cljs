@@ -11,13 +11,14 @@
     [goog.dom :as dom]
     [tiltontec.webmx.html :refer [tag-dom-create *webmx-trace*]]
 
-    ;;[tiltontec.webmx.mxintro.rxtrak :as app] ;; Intro app for Lisp-NYC, 2018
+    ;; [tiltontec.webmx.mxintro.rxtrak :as app] ;; Intro app for Lisp-NYC, 2018
 
     ;;[tiltontec.webmx.example.gloss :as app]
     ;;[tiltontec.webmx.example.testing :as app]
-    [tiltontec.webmx.example.todomvc :as app]
+    ;;[tiltontec.webmx.example.todomvc :as app]
     ;;[tiltontec.webmx.example.gentle-intro :as app]
-    ;; [tiltontec.webmx.example.ticktock :as app] ;; use ticktock.html to get css
+    ;;[tiltontec.webmx.example.ticktock :as app] ;; use ticktock.html to get css
+    [tiltontec.webmx.example.pipeline.core :as app] ;; use pipeline.html to get css
     ;;[tiltontec.webmx.example.startwatch :as app] ;; use startwatch.html to get css
 
     )

@@ -158,7 +158,9 @@
           (pln :observing-tagtype (tagfo me) slot newv oldv)))
 
       (cond
-        (= slot :content) (set! (.-innerHTML dom) newv)
+        (= slot :content)
+        (do (pln :setting-html-content newv)
+            (.requestAnimationFrame js/window #(set! (.-innerHTML dom) newv)))
 
         (some #{slot} (:attr-keys @me))
         (do

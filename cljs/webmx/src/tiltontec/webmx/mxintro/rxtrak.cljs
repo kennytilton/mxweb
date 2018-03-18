@@ -115,9 +115,7 @@
     (dump :post-set-a-to-four-again)
     )")
 
-(defn hello-lisp-nyc
-  []
-
+(defn hello-lisp-nyc []
   (md/make
     :mx-dom (cF (md/with-par me
                   [(back-forth)
@@ -125,8 +123,7 @@
                    (img {:alt "I Love Lisp"
                          :src "resources/ilovelisp.jpeg"})]))))
 
-(defn hello-cells
-  []
+(defn hello-cells []
   (let [a (cI 0)
         b (cF+ [:slot :b
                 :obs (fn-obs (println :OBS slot :new new))]
@@ -200,8 +197,7 @@
                                  (drug-name rx)
                                  \":\" (refill-within rx)))))]))))")
 
-(defn hello-model
-  []
+(defn hello-model []
   (let [rx (md/make
              :title "adderall"
              :refills (cI 5)
