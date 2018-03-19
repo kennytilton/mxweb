@@ -159,7 +159,7 @@
 
       (cond
         (= slot :content)
-        (do (pln :setting-html-content newv)
+        (do ;;(pln :setting-html-content newv)
             (.requestAnimationFrame js/window #(set! (.-innerHTML dom) newv)))
 
         (some #{slot} (:attr-keys @me))
