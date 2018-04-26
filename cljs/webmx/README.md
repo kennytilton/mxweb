@@ -63,7 +63,7 @@ Above we see the CSS `class` tracking the completed property of the lexically cl
         :checked (c? (<mget todo :completed))
         :onclick #(mswap! todo :completed not)}) ;; <-- mswap!> triggers the dataflow
 ````
-`mswap!>` is the dataflow "writer" that mirrors `<mget`. It causes all direct or indirect dependents to recalculate. Note also the `checked` attribute, another property following the `completed` property of our todo.
+`mswap!>` is one dataflow "writer" that mirrors `<mget`. `mset!> is another. They cause all direct or indirect dependents to recalculate. Note also the `checked` attribute, another property following the `completed` property of our todo.
 
 Why the "input" characterization? It cannot be rules all the way down. These cells are the inputs into the dataflow from outside imperative code. The diagram below is of a *directed acyclic graph* that can help us imagine the flow that arises when input cells change and their new values are then consumed by dependent formulaic cells when their recomputation is triggered. In the diagram below, cells 7, 5, and 3 would be the input cells.
 
@@ -78,17 +78,17 @@ The dataflow engine propagates each new input value by recursively recomputing d
         :checked (set! (.-checked (tag-dom me)) new-value
         ....)))
 ````
-In contrast with RxJS and MobX, Matrix observers work off to the side, if you will, as ancillary participants tapping into the main flow to produce tangible behavior. Think "UN observer vs. combatant". 
+In contrast with RxJS and MobX, Matrix observers work off to the side, if you will, as ancillary participants tapping into the main flow to produce tangible application behavior (if only a screen update). Think "UN observer vs. combatant". 
 
-We refer to the combination of cascading recomputation and consequent observation as *dataflow*. Objects with Cells as properties are called *models* in the sense of a *working model*, this because these objects change and act autonomously as driven by dataflow. Hence the *md-* prefix, by the way.
+We refer to the combination of cascading recomputation and consequent observation as *data flow*. Objects with Cells as properties are called *models* in the sense of a *working model*, because these objects change and act autonomously as driven by data flow. Hence the *md-* prefix, by the way.
 
 Matrix includes support for arranging models as a tree in which a model can have zero or more children and children have one parent and have a reference to that parent. This omni-directional linkage means any cell formula or observer can reach any other cell in the tree of models; they have perfect information. We call a population of objects connected by interdependent cell properties a *matrix* in concordance with this definition (forget the otherwise fine movie): 
 
 > ma·trix ˈmātriks *noun* an environment in which something else takes form. *Origin:* Latin, female animal used for breeding, parent plant, from *matr-*, *mater*
 
-In the case of TodoFRP, that something else is an interactive do-list. 
+In the case of TodoMVC, that something else is an interactive do-list. 
 
-A major design goal was ease of use by programmers. Dependencies are established transparently by simply reading a property. Dataflow is triggered simply by assigning a new value to an input cell. Shuffle the code during a refactoring and the pub/sub moves with it. 
+A major design goal was ease of use by programmers. Dependencies are established transparently by simply reading a property. Data flow is triggered simply by assigning a new value to an input cell. Shuffle the code during a refactoring and the pub/sub moves with it. 
 
 Speaking of (transparent) code, let us look at some more code to make the above more concrete. 
 
@@ -96,9 +96,9 @@ Speaking of (transparent) code, let us look at some more code to make the above 
 
 The view from 30k is nice but unsatisfying; I for one do not grasp a software library until I see it in the wild. The source code of this repository includes three heavily-annotated application source files (or if you are like us skip down to "Matrix Highlights" to see if you have any interest): 
 
-* Two belong to the TodoMVC implementation: [todomx/todo.cljs](https://github.com/kennytilton/todoFRP/blob/matrixjs/todo/MatrixCLJS/src/todomx/todo.cljs) covers how we load to-dos from `localStorage` into the application matrix so the view can track them reactively, [todomx/matrix.cljs](https://github.com/kennytilton/todoFRP/blob/matrixjs/todo/MatrixCLJS/src/todomx/matrix.cljs) covers the app itself, predominantly the view.
-* The third annotated source is [todomx/gentle-intro.cljs](https://github.com/kennytilton/todoFRP/blob/matrixjs/todo/MatrixCLJS/src/example/gentle_intro.cljs), a zero-to-sixty progression of working examples starting with a basic reactive Cell and ending with point updates to the DOM in reaction to a change in the title of a to-do.
-* Finally, [todomx/startwatch.cljs](https://github.com/kennytilton/todoFRP/blob/matrixjs/todo/MatrixCLJS/src/todomx/startwatch.cljs) demonstrates a fun capability in which formulaic Cells close over atoms in which they maintain state across rule invocations to support semantics derived from the *stream* of values they encounter. Think `RxJS Lite`. The moral here is that streams are emergent properties arising naturally from the values sampled by formulaic Cells; there is no need to construct or maintain them explicitly.
+* Two belong to the TodoMVC implementation: [example/todo.cljs](https://github.com/kennytilton/webmx/blob/master/cljs/webmx/src/tiltontec/webmx/example/todo.cljs) covers how we load to-dos from `localStorage` into the application matrix so the view can track them reactively, [example/todomvc.cljs](https://github.com/kennytilton/webmx/blob/master/cljs/webmx/src/tiltontec/webmx/example/todomvc.cljs) covers the app itself, predominantly the view.
+* The third annotated source is [todomx/gentle-intro.cljs](https://github.com/kennytilton/webmx/tree/master/cljs/webmx/src/tiltontec/webmx/example), a zero-to-sixty progression of working examples starting with a basic reactive Cell and ending with point updates to the DOM in reaction to a change in the title of a to-do.
+* Finally, [todomx/startwatch.cljs](https://github.com/kennytilton/webmx/blob/master/cljs/webmx/src/tiltontec/webmx/example/startwatch.cljs) demonstrates a fun capability in which formulaic Cells close over atoms in which they maintain state across rule invocations to support semantics derived from the *stream* of values they encounter. Think `RxJS Lite`. The moral here is that streams are emergent properties arising naturally from the values sampled by formulaic Cells; there is no need to construct or maintain them explicitly.
 
 Check those out to see how the ideas of Matrix play out in working code. Or, if surfing code seems too much like work, here are the highlights.
 
@@ -135,14 +135,6 @@ That list hits transparency and automation quite often, by design intent. In his
 > Smalltalk and Common Lisp are languages that were obviously written by people trying to write programs for people.
 
 MatrixCLJS was developed for people trying to building applications, and to us that means not having to think much about MatrixCLJS.
-
-## Next steps
-The next steps for MatrixCLJS are:
-* Synapses [DONE]: Check out this [cursory treatment](https://github.com/kennytilton/todoFRP/blob/matrixjs/todo/MatrixCLJS/Synapses.md) of synapses or, again, see the heavily annotated [todomx/startwatch.cljs](https://github.com/kennytilton/todoFRP/blob/matrixjs/todo/MatrixCLJS/src/todomx/startwatch.cljs) and the [synapse tests](https://github.com/kennytilton/todoFRP/blob/matrixjs/todo/MatrixCLJS/test/tiltontec/cell/synapse_test.cljc) to see how a free-floating or "anonymous" Cell can serve usefully as an intermediary (hence "synapse") between a host Cell and its dependencies.
-* Eliminate Callback Hell [DONE]: Track [this write-up](https://github.com/kennytilton/xhr/blob/master/cljs/XHR.md) to see how simple property-to-property dataflow greatly ameliorates the coding of elaborate remote request processing. Spoiler alert: we now have Callback Purgatory, no longer in Hell but some work remains when using the new synapse-enabled *XHR* module to reach remote request heaven. 
-* Documentation: [MDN](https://developer.mozilla.org/en-US/) by design imperative will be the doc for `Tag`, but the Matrix dataflow substrate needs doc.
-
-We also must decide whether to work first on the ClojureScript version or the Javascript version. Send your votes and any corrections, comments, or questions to kentilton at gmail etc etc.
 
 ## License
 
