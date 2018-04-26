@@ -142,7 +142,7 @@
                        (dom/appendChild frag
                          (if (some #{newk} oldv)
                            (.removeChild pdom (tag-dom newk))
-                           (do (println :obs-tag-kids-building-new-dom (tagfo newk))
+                           (do ;;(println :obs-tag-kids-building-new-dom (tagfo newk))
                                (tag-dom-create newk)))))
 
                      (dom/removeChildren pdom)
@@ -160,7 +160,7 @@
       (cond
         (= slot :content)
         (do ;;(pln :setting-html-content newv)
-            (.requestAnimationFrame js/window #(set! (.-innerHTML dom) newv)))
+          (.requestAnimationFrame js/window #(set! (.-innerHTML dom) newv)))
 
         (some #{slot} (:attr-keys @me))
         (do
@@ -168,7 +168,10 @@
           (case slot
             :style (set! (.-style dom) (style-string newv))
 
-            :hidden (set! (.-hidden dom) newv)              ;; setAttribute seems not to work
+            :hidden (set! (.-hidden dom) newv)
+            :disabled (if newv
+                        (.setAttribute dom "disabled" true)
+                        (.removeAttribute dom "disabled"))
             :class (classlist/set dom (if (sequential? newv)
                                         (str/join " " newv)
                                         newv))

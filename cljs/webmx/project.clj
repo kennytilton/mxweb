@@ -1,5 +1,7 @@
-(defproject com.tiltontec/webmx "0.1.0-SNAPSHOT"
+(defproject com.tiltontec/webmx "0.1.1-SNAPSHOT"
   :description "A Web un-framework for the Matrix (dataflow library)"
+  :license {:name "Eclipse Public License"
+            :url "http://www.eclipse.org/legal/epl-v10.html"}
   :url "https://github.com/kennytilton"
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [org.clojure/clojurescript "1.9.671"]

@@ -26,7 +26,7 @@
     ;; where we specify string content to, eg, button, we get an
     ;; automatic span for the string that has no ID. Hopefully, where
     ;; dom-webmx is requested they will be OK with us tracking the nearest ascendant.
-    (= "" (.-id dom)) (do (println :no-id-try-pa (.-parentNode dom))
+    (= "" (.-id dom)) (do ;;(println :no-id-try-pa (.-parentNode dom))
                           (dom-tag (.-parentNode dom)))
     :default (do
                ;;(println :dom-webmx-really-sees-id (.-id dom)(type (.-id dom)))

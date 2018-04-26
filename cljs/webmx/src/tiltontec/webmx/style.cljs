@@ -42,6 +42,7 @@
 (defn style-string [s]
   (cond
     (string? s) s
+    (nil? s) ""
 
     (map? s)
     (str/join ";"
@@ -53,7 +54,8 @@
 
     :default
     (do
-      (println :ss-unknown (type s)))))
+      (println :ss-unknown s (type s))
+      "")))
 
 (defmethod observe-by-type [:tiltontec.webmx.css/css] [slot me newv oldv _]
   (when (not= oldv unbound)
